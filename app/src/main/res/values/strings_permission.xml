@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--权限申请-->
+    <string name="permission_setting_content_pre">在-设置-应用- %s 中，</string>
+    <string name="permission_setting_content_all">您有未授权项目，可能导致应用异常。在-设置-应用- gl中进行权限设置，是否现在去授权？</string>
+    <string name="permission_error">权限未开启！</string>
+    <string name="permission_write_external_storage">请开启读写权限，以保证应用相关的存储。</string>
+    <string name="permission_camera">请开启相机权限，以保证头像自拍和二维码扫描的正常进行。</string>
+    <string name="permission_contact">请开启读取通讯录权限，以获得更多好友推荐和邀请。</string>
+    <string name="permission_audio">请开启麦克风权限，以进行语音通讯。</string>
+    <string name="permission_phone_state">请开启获取手机状态权限，否则无法更好使用app。</string>
+    <string name="permission_sms">请开启发送短信的权限，才能邀请好友。</string>
+    <string name="permission_location">请开启定位的权限，才能找到更多好友。</string>
+</resources>
