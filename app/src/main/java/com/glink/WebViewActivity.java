@@ -26,7 +26,7 @@ public class WebViewActivity extends BaseActivity {
     @BindView(R.id.webView)
     WebView webView;
     @BindView(R.id.progress_bar)
-    ProgressBar webviewProgressBar;
+    ProgressBar wvProgressBar;
 
     private WebViewInterface webViewInterface;
     private String url;
@@ -74,7 +74,7 @@ public class WebViewActivity extends BaseActivity {
     }
 
     private void initView() {
-        webView.setWebChromeClient(new ChromeClient(webviewProgressBar, null));
+        webView.setWebChromeClient(new ChromeClient(wvProgressBar, null));
         WebViewClient webViewClient = new WebViewClient() {
 
             @Override
@@ -88,7 +88,7 @@ public class WebViewActivity extends BaseActivity {
             }
         };
         webViewInterface = new WebViewInterface(WebViewActivity.this, webView);
-        setWebView(url, webViewInterface, webViewClient, "snailGtGame");
+        setWebView(url, webViewInterface, webViewClient, "gl");
     }
 
     @SuppressLint("JavascriptInterface")
