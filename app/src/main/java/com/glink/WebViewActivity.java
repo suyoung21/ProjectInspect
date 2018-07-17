@@ -1,6 +1,7 @@
 package com.glink;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -117,5 +118,11 @@ public class WebViewActivity extends BaseActivity {
             webView.setWebViewClient(webViewClient);
         }
         webView.loadUrl(url);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        webViewInterface.onActivityResult(requestCode, resultCode, data);
     }
 }

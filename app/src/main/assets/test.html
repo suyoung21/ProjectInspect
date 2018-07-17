@@ -86,11 +86,13 @@
             }
             
             gl.choosePhotoCallback = function(res){
+                    alert("choosePhotoCallback");
                 var _res = res;
                 if(typeof _res === 'string'){
                     _res = JSON.parse(_res);
                 }
                 _log(res);
+
             }
             
             gl.takePhotoCallback = function(res){
