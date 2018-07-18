@@ -30,10 +30,10 @@ import java.util.Set;
 public class PermissionHelper {
     public static class PermissionType {
         public static int WRITE_EXTERNAL_STORAGE = 0;//读写
-        public static int READ_PHONE_STATE = 1;//手机状态
-        public static int READ_CONTACTS = 2;//通讯录
-        public static int RECORD_AUDIO = 3;//语音
-        public static int CAMERA = 4;//相机
+        public static int RECORD_AUDIO = 1;//语音
+        public static int CAMERA = 2;//相机
+        public static int READ_PHONE_STATE = 3;//手机状态
+        public static int READ_CONTACTS = 4;//通讯录
         public static int VIBRATE = 5;//震动
         public static int LOCATION = 6;//GPS定位
         public static int SMS = 7;//发短信
@@ -48,10 +48,10 @@ public class PermissionHelper {
     //需要申请的权限列表(0 & 1 必须)
     private static final String[] fPermissions = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.READ_CONTACTS,
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.CAMERA,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_CONTACTS,
             Manifest.permission.VIBRATE,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.SEND_SMS,

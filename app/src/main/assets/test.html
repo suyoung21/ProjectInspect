@@ -96,6 +96,7 @@
             }
             
             gl.takePhotoCallback = function(res){
+                   alert("takePhotoCallback");
                 var _res = res;
                 if(typeof _res === 'string'){
                     _res = JSON.parse(_res);

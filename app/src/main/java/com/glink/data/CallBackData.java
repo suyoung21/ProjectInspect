@@ -5,19 +5,13 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class CallBackData {
+public class CallBackData<T> {
 
     private int code;
     private String message = "";
-    private String data;
+    private T data;
 
     public CallBackData() {
-    }
-
-    public CallBackData(int code, String msg, String data) {
-        this.code = code;
-        this.message = msg;
-        this.data = data;
     }
 
 

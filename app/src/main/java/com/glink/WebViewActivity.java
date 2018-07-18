@@ -4,9 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -25,31 +23,12 @@ import butterknife.ButterKnife;
 public class WebViewActivity extends BaseActivity {
 
     @BindView(R.id.webView)
-    WebView webView;
+    WebView mWebView;
     @BindView(R.id.progress_bar)
-    ProgressBar wvProgressBar;
+    ProgressBar mProgressBar;
 
     private WebViewInterface webViewInterface;
     private String url;
-    private static final int UI_ANIMATION_DELAY = 300;
-    private final Handler mHideHandler = new Handler();
-    private final Runnable mHidePart2Runnable = new Runnable() {
-        @SuppressLint("InlinedApi")
-        @Override
-        public void run() {
-            // Delayed removal of status and navigation bar
-
-            // Note that some of these constants are new as of API 16 (Jelly Bean)
-            // and API 19 (KitKat). It is safe to use them, as they are inlined
-            // at compile-time and do nothing on earlier devices.
-            webView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        }
-    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,17 +44,24 @@ public class WebViewActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mHideHandler.removeCallbacks(mHidePart2Runnable);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mWebView.canGoBack()) {
+            mWebView.goBack();
+            return;
+        }
+        super.onBackPressed();
     }
 
     private void initView() {
-        webView.setWebChromeClient(new ChromeClient(wvProgressBar, null));
+        mWebView.setWebChromeClient(new ChromeClient(mProgressBar, null));
         WebViewClient webViewClient = new WebViewClient() {
 
             @Override
@@ -88,13 +74,13 @@ public class WebViewActivity extends BaseActivity {
                 return super.shouldOverrideUrlLoading(view, request);
             }
         };
-        webViewInterface = new WebViewInterface(WebViewActivity.this, webView);
+        webViewInterface = new WebViewInterface(WebViewActivity.this, mWebView);
         setWebView(url, webViewInterface, webViewClient, "gl");
     }
 
     @SuppressLint("JavascriptInterface")
     private void setWebView(String url, Object callBack, WebViewClient webViewClient, String interfaceClassName) {
-        WebSettings webSettings = webView.getSettings();
+        WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             webSettings.setAllowUniversalAccessFromFileURLs(true);
@@ -107,22 +93,35 @@ public class WebViewActivity extends BaseActivity {
         // 支持缩放，在SDK11以上，不显示缩放按钮
         webSettings.setSupportZoom(true);
         webSettings.setBuiltInZoomControls(true);
-        if (Build.VERSION.SDK_INT >= 11) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             webSettings.setDisplayZoomControls(false);
         }
         // 自适应网页宽度
         webSettings.setUseWideViewPort(true);
         webSettings.setLoadWithOverviewMode(true);
-        webView.addJavascriptInterface(callBack, interfaceClassName);
+        mWebView.addJavascriptInterface(callBack, interfaceClassName);
         if (null != webViewClient) {
-            webView.setWebViewClient(webViewClient);
+            mWebView.setWebViewClient(webViewClient);
         }
-        webView.loadUrl(url);
+        mWebView.loadUrl(url);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         webViewInterface.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onDestroy() {
+        // destroy the WebView completely
+        if (mWebView != null) {
+            mWebView.setWebChromeClient(null);
+            mWebView.setWebViewClient(null);
+            mWebView.getSettings().setJavaScriptEnabled(false);
+            mWebView.clearCache(true);
+            mWebView = null;
+        }
+        super.onDestroy();
     }
 }

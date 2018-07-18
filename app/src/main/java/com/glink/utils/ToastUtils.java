@@ -1,9 +1,14 @@
 package com.glink.utils;
 
 import android.content.Context;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glink.App;
+import com.glink.R;
 import com.glink.utils.ResUtil;
 
 /**
@@ -87,13 +92,13 @@ public class ToastUtils {
      * @param msg     Toast显示文字
      */
     public static Toast createToast(Context context, String msg) {
-//        LayoutInflater inflater = LayoutInflater.from(context);
-//        View layout = inflater.inflate(R.layout.common_toast_layout, null);
-//        TextView contentTv = (TextView) layout.findViewById(R.id.text_content);
-//        contentTv.setText(msg);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View layout = inflater.inflate(R.layout.layout_toast_commom, null);
+        TextView contentTv = (TextView) layout.findViewById(R.id.text_content);
+        contentTv.setText(msg);
         Toast toast = new Toast(context);
-//        toast.setGravity(Gravity.FILL_HORIZONTAL | Gravity.BOTTOM, 0, ResUtil.getDimensionPixelSize(R.dimen.dimen_30dp));
-//        toast.setView(layout);
+        toast.setGravity(Gravity.FILL_HORIZONTAL | Gravity.BOTTOM, 0, ResUtil.getDimensionPixelSize(R.dimen.dimen_30dp));
+        toast.setView(layout);
         return toast;
     }
 
