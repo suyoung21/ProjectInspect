@@ -2,27 +2,26 @@ package com.glink;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.donkingliang.imageselector.utils.ImageSelector;
-import com.glink.http.HttpRequest;
-
-import java.util.ArrayList;
+import com.glink.base.BaseActivity;
+import com.glink.utils.PermissionHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
 
     @BindView(R.id.editText)
     EditText editText;
     @BindView(R.id.button)
     Button button;
+    @BindView(R.id.btn_zxing)
+    Button zxingBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +40,21 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
                 intent.putExtra("url", url);
                 startActivity(intent);
+            }
+        });
+
+        zxingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PermissionHelper.checkPermission(MainActivity.this, PermissionHelper.PermissionType.CAMERA, new PermissionHelper.OnPermissionThroughActionListener() {
+                    @Override
+                    public void onThroughAction(Boolean havePermission) {
+                        if (havePermission) {
+                            startActivity(new Intent(MainActivity.this, ZxingActivity.class));
+                        }
+                    }
+                });
+
             }
         });
     }

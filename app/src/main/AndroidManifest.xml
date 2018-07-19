@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <!--调用录音权限-->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!--二维码-->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.FLASHLIGHT"/>
 
     <application
         android:name="com.glink.App"
@@ -29,7 +32,12 @@
         <activity
             android:name="com.glink.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/WebViewTheme">
+            android:theme="@style/FullAppTheme">
+        </activity>
+
+        <activity
+            android:name="com.glink.ZxingActivity"
+            android:theme="@style/FullAppTheme">
         </activity>
 
 

@@ -70,7 +70,7 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
                     if (!isFinished) {
                         isFinished = true;
                         finishRecord();
-                        ToastUtils.showMsg(getContext(), "语音时长达到" + MAX_COUNT_DOWN_TIME + "秒，自动发送");
+                        ToastUtils.showMsg(getContext(), "语音时长达到" + MAX_COUNT_DOWN_TIME + "秒");
                     }
                     break;
                 case FLAG_LOOP:
@@ -294,6 +294,8 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
     }
 
     private void callWebStop(int code, String msg, int time) {
+        LogUtil.d("record stop---code:"+code+"--time:"+time);
+        LogUtil.d("code:"+code+"--time:"+time);
         CallBackData<JSONObject> callBackData = new CallBackData();
         callBackData.setCode(code);
         if (msg != null) {
@@ -313,6 +315,7 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
     }
 
     private void callWebStart(int code, String msg, int time) {
+        LogUtil.d("record start---code:"+code+"--time:"+time);
         CallBackData callBackData = new CallBackData();
         callBackData.setCode(code);
         if (msg != null) {

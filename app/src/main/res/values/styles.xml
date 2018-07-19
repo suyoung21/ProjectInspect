@@ -31,10 +31,11 @@
         <item name="android:duration">100</item>
     </style>
 
-    <style name="WebViewTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="FullAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 
 

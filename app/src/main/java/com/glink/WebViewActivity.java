@@ -49,6 +49,7 @@ public class WebViewActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        webViewInterface.onPause();
     }
 
     @Override

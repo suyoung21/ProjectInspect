@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v4.os.EnvironmentCompat;
+import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -62,7 +63,7 @@ public class WebViewInterface {
         recordUtil.setOnFinishedRecordListener(new RecordUtil.OnFinishedRecordListener() {
             @Override
             public void onFinishedRecord(String audioPath, int time) {
-
+                currentRecordPath = audioPath;
             }
         });
     }
@@ -89,8 +90,8 @@ public class WebViewInterface {
 
     @JavascriptInterface
     public void startRecord(int second, String stopCallbackName, String startCallbackName) {
-        currentRecordPath = getRecorderPath();
-        recordUtil.startRecorder(second, currentRecordPath, mWebView, startCallbackName, stopCallbackName);
+
+        recordUtil.startRecorder(second, getRecorderPathDir(), mWebView, startCallbackName, stopCallbackName);
     }
 
     @JavascriptInterface
@@ -101,11 +102,25 @@ public class WebViewInterface {
 
     @JavascriptInterface
     public void uploadRecord(String params, String callbackName) {
+        mCallbackName = callbackName;
+        mCallBackData = new CallBackData();
+        mCallBackData.setCode(0);
+        mCallBackData.setMessage("暂无上传接口");
+        String loadUrl = "javascript:" + mCallbackName + "('" + GsonUtil.toJsonString(mCallBackData) + "')";
+        mWebView.loadUrl(loadUrl);
 
     }
 
     @JavascriptInterface
     public void playRecord(final String callbackName) {
+        if (TextUtils.isEmpty(currentRecordPath)) {
+            mCallBackData = new CallBackData();
+            mCallBackData.setCode(0);
+            mCallBackData.setMessage("没有录音文件");
+            String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(mCallBackData) + "')";
+            mWebView.loadUrl(loadUrl);
+            return;
+        }
         AudioPlayManager.getInstance().startAudio(currentRecordPath);
         AudioPlayManager.getInstance().setOnFinishedRecordListener(new AudioPlayManager.OnFinishedPlayListener() {
             @Override
@@ -173,51 +188,57 @@ public class WebViewInterface {
         if (CommonUtil.isListNull(imagePathList)) {
             return;
         }
-        final ArrayList<File> fileList = new ArrayList<>();
-
-        Observable.fromIterable(imagePathList).map(new Function<String, File>() {
-            @Override
-            public File apply(String s) throws Exception {
-                LogUtil.d("img path: " + s);
-                return FileUtil.createFile(s, true);
-            }
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<File>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(File file) {
-                        fileList.add(file);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        HttpRequest.uploadPics(mActivity, fileList, new BaseObserver<BaseResponse>(mActivity) {
-                            @Override
-                            public void onNext(BaseResponse baseResponse) {
-                                super.onNext(baseResponse);
-                                LogUtil.d(baseResponse.code);
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                super.onComplete();
-                                mCallBackData.setCode(1);
-                                String loadUrl = "javascript:" + mCallbackName + "('" + GsonUtil.toJsonString(mCallBackData) + "')";
-                                mWebView.loadUrl(loadUrl);
-                            }
-                        });
-                    }
-                });
+        //TODO:TEST--
+        {
+            mCallBackData.setCode(1);
+            String loadUrl = "javascript:" + mCallbackName + "('" + GsonUtil.toJsonString(mCallBackData) + "')";
+            mWebView.loadUrl(loadUrl);
+        }
+//        final ArrayList<File> fileList = new ArrayList<>();
+//
+//        Observable.fromIterable(imagePathList).map(new Function<String, File>() {
+//            @Override
+//            public File apply(String s) throws Exception {
+//                LogUtil.d("img path: " + s);
+//                return FileUtil.createFile(s, true);
+//            }
+//        }).subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Observer<File>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onNext(File file) {
+//                        fileList.add(file);
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        HttpRequest.uploadPics(mActivity, fileList, new BaseObserver<BaseResponse>(mActivity) {
+//                            @Override
+//                            public void onNext(BaseResponse baseResponse) {
+//                                super.onNext(baseResponse);
+//                                LogUtil.d(baseResponse.code);
+//                            }
+//
+//                            @Override
+//                            public void onComplete() {
+//                                super.onComplete();
+//                                mCallBackData.setCode(1);
+//                                String loadUrl = "javascript:" + mCallbackName + "('" + GsonUtil.toJsonString(mCallBackData) + "')";
+//                                mWebView.loadUrl(loadUrl);
+//                            }
+//                        });
+//                    }
+//                });
 
     }
 
@@ -259,12 +280,12 @@ public class WebViewInterface {
         return tempFile;
     }
 
-    private String getRecorderPath() {
+    private String getRecorderPathDir() {
         String storageDir = Const.APP_AUDIO_FILES_PATH;
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String fileName = String.format(ResUtil.getString(R.string.app_name) + "_%s.mp3", timeStamp);
-        File tempFile = new File(storageDir, fileName);
-        return tempFile.getAbsolutePath();
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+//        String fileName = String.format(ResUtil.getString(R.string.app_name) + "_%s.mp3", timeStamp);
+//        File tempFile = new File(storageDir, fileName);
+        return FileUtil.createDirectory(storageDir);
 
     }
 
