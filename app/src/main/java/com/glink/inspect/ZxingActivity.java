@@ -1,39 +1,59 @@
-package com.glink;
+package com.glink.inspect;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.glink.base.BaseActivity;
+import com.glink.R;
+import com.glink.inspect.base.BaseActivity;
+import com.glink.inspect.bus.BusProvider;
+import com.glink.inspect.data.ZxingData;
 import com.google.zxing.Result;
 
-import me.dm7.barcodescanner.core.IViewFinder;
 import me.dm7.barcodescanner.core.ViewFinderView;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class ZxingActivity extends BaseActivity implements ZXingScannerView.ResultHandler {
+    private static final String CALLBACK_NAME = "ZXING_CALLBACK_NAME";
     private static final String FLASH_STATE = "FLASH_STATE";
     private boolean mFlash;
     private ZXingScannerView mScannerView;
+    private String callbackName;
 
+
+    public static Intent newIntent(Activity fromActivity, String callbackName) {
+        Intent intent = new Intent(fromActivity, ZxingActivity.class);
+        intent.putExtra(CALLBACK_NAME, callbackName);
+        return intent;
+    }
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.activity_zxing);
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (getIntent() != null) {
+            callbackName = getIntent().getStringExtra(CALLBACK_NAME);
+        }
         if (state != null) {
             mFlash = state.getBoolean(FLASH_STATE, false);
         }
-        mScannerView = new ZXingScannerView(this) {
-            @Override
-            protected IViewFinder createViewFinderView(Context context) {
-                return new CustomViewFinderView(context);
-            }
-        };
+//        mScannerView = new ZXingScannerView(this) {
+//            @Override
+//            protected IViewFinder createViewFinderView(Context context) {
+//                return new CustomViewFinderView(context);
+//            }
+//        };
+        mScannerView = new ZXingScannerView(this);
         ViewGroup contentFrame = (ViewGroup) findViewById(R.id.content_frame);
         contentFrame.addView(mScannerView);
         findViewById(R.id.light).setOnClickListener(new View.OnClickListener() {
@@ -60,6 +80,7 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
 
         mScannerView.startCamera();
         mScannerView.setFlash(mFlash);
+        mScannerView.setAutoFocus(true);
     }
 
     @Override
@@ -76,7 +97,7 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
     @Override
     public void handleResult(Result result) {
         Toast.makeText(getApplicationContext(), "内容=" + result.getText() + ",格式=" + result.getBarcodeFormat().toString(), Toast.LENGTH_SHORT).show();
-
+        BusProvider.getInstance().post(new ZxingData(result.getText(), result.getBarcodeFormat(), callbackName));
         // Note:
         // * Wait 2 seconds to resume the preview.
         // * On older devices continuously stopping and resuming camera preview can result in freezing the app.
@@ -102,10 +123,12 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
             super(context, attrs);
             init();
         }
-        private void init(){
+
+        private void init() {
 //            setSquareViewFinder(true);
 //            setBorderColor(R.color.gl_blue);
 //            setBorderStrokeWidth(5);
+            setLaserEnabled(true);
         }
     }
 }

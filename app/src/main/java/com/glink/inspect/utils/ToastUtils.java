@@ -1,4 +1,4 @@
-package com.glink.utils;
+package com.glink.inspect.utils;
 
 import android.content.Context;
 import android.view.Gravity;
@@ -7,9 +7,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.glink.App;
+import com.glink.inspect.App;
 import com.glink.R;
-import com.glink.utils.ResUtil;
+import com.glink.inspect.utils.ResUtil;
 
 /**
  * @author jiangshuyang

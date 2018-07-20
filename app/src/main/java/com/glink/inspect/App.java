@@ -1,8 +1,11 @@
-package com.glink;
+package com.glink.inspect;
 
 import android.app.Activity;
 import android.content.Context;
 import android.support.multidex.MultiDexApplication;
+
+import com.glink.BuildConfig;
+import com.glink.inspect.utils.CrashHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +16,14 @@ import java.util.List;
 public class App extends MultiDexApplication {
     private static App instance;
     //沙盒（内网）开关
-    public boolean isSandbox = true;
+    public boolean isSandbox = BuildConfig.DEBUG;
     private List<Activity> mActivityList = new ArrayList<>();
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
+        CrashHandler.getInstance().initialize(this);
     }
 
     public static App getInstance() {
@@ -63,11 +67,13 @@ public class App extends MultiDexApplication {
 
     /**
      * 获取当前activity
+     *
      * @return
      */
     public Activity getCurrentActivity() {
-        return mActivityList.get(mActivityList.size() -1);
+        return mActivityList.get(mActivityList.size() - 1);
     }
+
     public void createActivity(Activity activity) {
         if (!mActivityList.contains(activity)) {
             mActivityList.add(activity);

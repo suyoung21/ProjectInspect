@@ -1,4 +1,4 @@
-package com.glink.utils;
+package com.glink.inspect.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

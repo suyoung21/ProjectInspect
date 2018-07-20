@@ -1,18 +1,25 @@
-package com.glink;
+package com.glink.inspect;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
-import com.glink.base.BaseActivity;
-import com.glink.callback.WebViewInterface;
+import com.glink.R;
+import com.glink.inspect.base.BaseActivity;
+import com.glink.inspect.callback.WebViewInterface;
+import com.glink.inspect.data.CallBackData;
+import com.glink.inspect.data.ZxingData;
+import com.glink.inspect.utils.GsonUtil;
+import com.glink.inspect.utils.LogUtil;
+import com.squareup.otto.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -124,5 +131,22 @@ public class WebViewActivity extends BaseActivity {
             mWebView = null;
         }
         super.onDestroy();
+    }
+
+    @Subscribe
+    public void getZxingResult(ZxingData zxingData) {
+        if (zxingData == null || TextUtils.isEmpty(zxingData.getCallbackName())) {
+            return;
+        }
+        CallBackData callBackData = new CallBackData();
+        if (TextUtils.isEmpty(zxingData.getResult())) {
+            callBackData.setCode(0);
+        } else {
+            callBackData.setCode(1);
+        }
+        String loadUrl = "javascript:" + zxingData.getCallbackName() + "('" + GsonUtil.toJsonString(callBackData) + "','" + zxingData.getCodeType().toString() + "')";
+
+        LogUtil.d("call js: " + loadUrl);
+        mWebView.loadUrl(loadUrl);
     }
 }

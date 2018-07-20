@@ -1,4 +1,4 @@
-package com.glink.utils;
+package com.glink.inspect.utils;
 
 import java.io.File;
 import java.io.IOException;

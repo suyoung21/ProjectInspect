@@ -1,4 +1,4 @@
-package com.glink.utils;
+package com.glink.inspect.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

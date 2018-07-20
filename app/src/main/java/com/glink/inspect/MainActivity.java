@@ -1,4 +1,4 @@
-package com.glink;
+package com.glink.inspect;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,8 +7,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.glink.base.BaseActivity;
-import com.glink.utils.PermissionHelper;
+import com.glink.R;
+import com.glink.inspect.base.BaseActivity;
+import com.glink.inspect.utils.PermissionHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,13 +29,15 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        zxingBtn.setVisibility(View.GONE);
+        editText.setText("http://192.168.1.115:811/test.html");
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String url = editText.getText().toString().trim();
                 if (TextUtils.isEmpty(url)) {
-                    url = "file:///android_asset/test.html";
+                    url = "file:///android_asset/test3.html";
                 }
 
                 Intent intent = new Intent(MainActivity.this, WebViewActivity.class);

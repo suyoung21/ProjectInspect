@@ -1,4 +1,4 @@
-package com.glink.utils;
+package com.glink.inspect.utils;
 
 import android.Manifest;
 import android.app.Activity;
@@ -13,7 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
-import com.glink.App;
+import com.glink.inspect.App;
 import com.glink.R;
 
 import java.util.ArrayList;

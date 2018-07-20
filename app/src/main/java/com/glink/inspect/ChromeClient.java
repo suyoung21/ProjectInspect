@@ -1,4 +1,4 @@
-package com.glink;
+package com.glink.inspect;
 
 import android.text.TextUtils;
 import android.webkit.WebChromeClient;

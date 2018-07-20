@@ -1,4 +1,4 @@
-package com.glink;
+package com.glink.inspect;
 
 import android.app.Activity;
 import android.content.Context;

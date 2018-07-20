@@ -1,4 +1,4 @@
-package com.glink.utils;
+package com.glink.inspect.utils;
 
 import android.Manifest;
 import android.content.Context;
@@ -8,8 +8,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import com.glink.App;
-import com.glink.data.Const;
+import com.glink.inspect.App;
+import com.glink.inspect.data.Const;
 
 import java.io.BufferedWriter;
 import java.io.File;

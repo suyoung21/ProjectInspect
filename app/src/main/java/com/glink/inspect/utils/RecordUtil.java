@@ -1,5 +1,6 @@
-package com.glink.utils;
+package com.glink.inspect.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -10,8 +11,8 @@ import android.text.TextUtils;
 import android.webkit.WebView;
 
 import com.czt.mp3recorder.MP3Recorder;
-import com.glink.App;
-import com.glink.data.CallBackData;
+import com.glink.inspect.App;
+import com.glink.inspect.data.CallBackData;
 
 import org.json.JSONObject;
 
@@ -48,6 +49,11 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
         mContext = context;
     }
 
+    private Activity getActivity() {
+        return (Activity) mContext;
+    }
+
+
     private Context getContext() {
         return mContext;
     }
@@ -77,7 +83,7 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
                     // 设置倒计时文字
 //                    countDownHandler.sendEmptyMessage(countDownTime);
 //                    mProgressBar.setProgress((60 - countDownTime));
-                    callWebStart(1, "录音中...", (60 - countDownTime));
+                    callWebStart(1, "录音中...", (MAX_COUNT_DOWN_TIME - countDownTime));
                     if (countDownTime == 0) {
                         mHandler.sendEmptyMessage(IS_ALMOST_REACH_MAX_TIME);
                         break;
@@ -171,6 +177,7 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
         LogUtil.i("record", "");
         try {
             recorder.start();
+            callWebStart(1, "录音中...", 0);
             LogUtil.i("record", "开始录音");
             return true;
         } catch (Exception e) {
@@ -212,6 +219,7 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
             if (finishedListener != null) {
                 int time = (int) (intervalTime < 1000 ? 1 : intervalTime / 1000);
                 finishedListener.onFinishedRecord(mFilePath, time);
+
                 callWebStop(1, "录音完成", time);
             }
         } catch (Exception e) {
@@ -293,38 +301,53 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
         void onFinishedRecord(String audioPath, int time);
     }
 
-    private void callWebStop(int code, String msg, int time) {
-        LogUtil.d("record stop---code:"+code+"--time:"+time);
-        LogUtil.d("code:"+code+"--time:"+time);
-        CallBackData<JSONObject> callBackData = new CallBackData();
-        callBackData.setCode(code);
-        if (msg != null) {
-            callBackData.setMessage(msg);
-        }
-        if (time >= 0) {
-            try {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("time", time);
-                callBackData.setData(jsonObject);
-            } catch (Exception e) {
-                e.printStackTrace();
+    private void callWebStop(final int code, final String msg, final int time) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.d("record stop---code:" + code + "--time:" + time);
+                CallBackData<JSONObject> callBackData = new CallBackData();
+                callBackData.setCode(code);
+                if (msg != null) {
+                    callBackData.setMessage(msg);
+                }
+                if (time >= 0) {
+                    try {
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("time", time);
+                        callBackData.setData(jsonObject);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                String loadUrl = "javascript:" + mStopCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
+                LogUtil.d("call js: " + loadUrl);
+                mWebView.loadUrl(loadUrl);
             }
-        }
-        String loadUrl = "javascript:" + mStopCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
-        mWebView.loadUrl(loadUrl);
+        });
+
     }
 
-    private void callWebStart(int code, String msg, int time) {
-        LogUtil.d("record start---code:"+code+"--time:"+time);
-        CallBackData callBackData = new CallBackData();
-        callBackData.setCode(code);
-        if (msg != null) {
-            callBackData.setMessage(msg);
-        }
-        String loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "," + time + "')";
-        mWebView.loadUrl(loadUrl);
-    }
+    private void callWebStart(final int code, final String msg, final int time) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.d("record start---code:" + code + "--time:" + time);
+                CallBackData callBackData = new CallBackData();
+                callBackData.setCode(code);
+                if (msg != null) {
+                    callBackData.setMessage(msg);
+                }
+                String loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "'," + time + ")";
+                if (time == 0) {
+                    loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
+                }
+                LogUtil.d("call js: " + loadUrl);
+                mWebView.loadUrl(loadUrl);
+            }
+        });
 
+    }
 
 }
 
