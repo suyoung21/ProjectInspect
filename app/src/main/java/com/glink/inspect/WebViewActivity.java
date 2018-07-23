@@ -138,12 +138,16 @@ public class WebViewActivity extends BaseActivity {
         if (zxingData == null || TextUtils.isEmpty(zxingData.getCallbackName())) {
             return;
         }
-        CallBackData callBackData = new CallBackData();
+        CallBackData<String> callBackData = new CallBackData();
         if (TextUtils.isEmpty(zxingData.getResult())) {
             callBackData.setCode(0);
+            callBackData.setMessage("扫码失败");
         } else {
             callBackData.setCode(1);
+            callBackData.setMessage("扫码成功");
+            callBackData.setData(zxingData.getResult());
         }
+
         String loadUrl = "javascript:" + zxingData.getCallbackName() + "('" + GsonUtil.toJsonString(callBackData) + "','" + zxingData.getCodeType().toString() + "')";
 
         LogUtil.d("call js: " + loadUrl);

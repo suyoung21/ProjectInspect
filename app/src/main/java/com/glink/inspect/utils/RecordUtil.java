@@ -21,7 +21,7 @@ import java.io.File;
 public class RecordUtil implements MediaRecorder.OnErrorListener {
 
     //最大计时时间
-    private int MAX_COUNT_DOWN_TIME = 60;
+    private int maxCountDownTime = 60;
     private static final int MIN_INTERVAL_TIME = 1000;// 1000ms
     private static final int QUICK_TOUCH_TIME = 800;
     private static final int IS_ALMOST_REACH_MAX_TIME = 1;
@@ -65,8 +65,8 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
 
             switch (msg.what) {
                 case IS_ALREADY_REACH_MAX_TIME:
-                    ToastUtils.showMsg(getContext(), "语音时长超过" + MAX_COUNT_DOWN_TIME + "秒！抱歉，请重新发送！");
-                    callWebStop(0, "语音时长超过" + MAX_COUNT_DOWN_TIME + "秒！", 0);
+                    ToastUtils.showMsg(getContext(), "语音时长超过" + maxCountDownTime + "秒！抱歉，请重新发送！");
+                    callWebStop(0, "语音时长超过" + maxCountDownTime + "秒！", 0);
                     break;
                 case MIN_INTERVAL_TIME:
                     ToastUtils.showMsg(getContext(), "时间太短！");
@@ -76,14 +76,14 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
                     if (!isFinished) {
                         isFinished = true;
                         finishRecord();
-                        ToastUtils.showMsg(getContext(), "语音时长达到" + MAX_COUNT_DOWN_TIME + "秒");
+                        ToastUtils.showMsg(getContext(), "语音时长达到" + maxCountDownTime + "秒");
                     }
                     break;
                 case FLAG_LOOP:
                     // 设置倒计时文字
 //                    countDownHandler.sendEmptyMessage(countDownTime);
 //                    mProgressBar.setProgress((60 - countDownTime));
-                    callWebStart(1, "录音中...", (MAX_COUNT_DOWN_TIME - countDownTime));
+                    callWebStart(1, "录音中...", (maxCountDownTime - countDownTime));
                     if (countDownTime == 0) {
                         mHandler.sendEmptyMessage(IS_ALMOST_REACH_MAX_TIME);
                         break;
@@ -97,7 +97,7 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
         }
     };
 
-    public static boolean isFastDoubleClick() {
+    private boolean isFastDoubleClick() {
         long time = System.currentTimeMillis();
         long timeD = time - lastClickTime;
         if (0 < timeD && timeD < QUICK_TOUCH_TIME) {
@@ -107,7 +107,16 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
         return false;
     }
 
-    public void startRecorder(int maxTime, String path, WebView webView, String startCallbackName, String stopCallbackName) {
+    /**
+     * 启动录音机
+     *
+     * @param maxTime
+     * @param dirPath
+     * @param webView
+     * @param startCallbackName
+     * @param stopCallbackName
+     */
+    public void startRecorder(int maxTime, String dirPath, WebView webView, String startCallbackName, String stopCallbackName) {
         if (isFastDoubleClick()) {
             return;
         }
@@ -116,7 +125,7 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
             callWebStop(0, "没有内存卡，请安装内存卡！", 0);
             return;
         }
-        if (TextUtils.isEmpty(path)) {
+        if (TextUtils.isEmpty(dirPath)) {
             ToastUtils.showMsg(getContext(), "未设置保存路径");
             callWebStop(0, "未设置保存路径", 0);
             return;
@@ -126,8 +135,8 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
             cancelRecord();
             return;
         }
-        MAX_COUNT_DOWN_TIME = maxTime;
-        mFileParentPath = path;
+        maxCountDownTime = maxTime;
+        mFileParentPath = dirPath;
         mWebView = webView;
         mStartCallbackName = startCallbackName;
         mStopCallbackName = stopCallbackName;
@@ -137,13 +146,21 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
             @Override
             public void onThroughAction(Boolean havePermission) {
                 if (havePermission) {
-                    initDialogAndStartRecord();
+                    initRecord();
                 }
             }
         });
     }
 
-    public void cancelRecorder() {
+    /**
+     * 关闭录音机
+     *
+     * @param stopCallbackName
+     */
+    public void stopRecorder(String stopCallbackName) {
+        if (stopCallbackName != null) {
+            mStopCallbackName = stopCallbackName;
+        }
         if (isCanceled) {
             cancelRecord();
         } else {
@@ -153,13 +170,13 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
         }
     }
 
-    private void initDialogAndStartRecord() {
-        countDownTime = MAX_COUNT_DOWN_TIME;
+    private void initRecord() {
+        countDownTime = maxCountDownTime;
         AudioPlayManager.getInstance().stopPlay();
         startTime = System.currentTimeMillis();
         if (startRecording()) {
             isCountDown = true;
-            mHandler.sendEmptyMessage(FLAG_LOOP);// 开始录音时就显示进度条
+            mHandler.sendEmptyMessage(FLAG_LOOP);
         } else {// 调用失败
             isFinished = true;
             stopRecording();
@@ -168,16 +185,16 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
     }
 
     private boolean startRecording() {
-        if (!check_recformat()) {
+        if (!checkRecformat()) {
             return false;
         }
         mFilePath = mFileParentPath + "/" + startTime + ".mp3";
         recorder = new MP3Recorder(new File(mFileParentPath, startTime + ".mp3"));
         LogUtil.i("record", "mFilePath=" + mFilePath);
-        LogUtil.i("record", "");
         try {
             recorder.start();
-            callWebStart(1, "录音中...", 0);
+            //开始时，给个空的回调给web
+            callWebStart(1, "开始录音，录音中...", 0);
             LogUtil.i("record", "开始录音");
             return true;
         } catch (Exception e) {
@@ -212,7 +229,9 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
             File file = new File(mFilePath);
             if (intervalTime < MIN_INTERVAL_TIME) {
                 mHandler.sendEmptyMessage(MIN_INTERVAL_TIME);
-                file.delete();
+                if (file.exists()) {
+                    file.delete();
+                }
                 return;
             }
             LogUtil.i("record", "finishRecord, Size=" + file.length());
@@ -223,7 +242,6 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
                 callWebStop(1, "录音完成", time);
             }
         } catch (Exception e) {
-            // TODO: handle exception
             e.printStackTrace();
         }
     }
@@ -232,18 +250,19 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
         stopRecording();
         ToastUtils.showMsg(getContext(), "取消录音！");
         File file = new File(mFilePath);
-        file.delete();
+        if (file.exists()) {
+            file.delete();
+        }
     }
 
     /**
      * 检查是否OK
-     * add by chenchaoyuan
      *
      * @return
      */
-    public boolean check_recformat() {
+    private boolean checkRecformat() {
         boolean bfound = false;
-        for (int rec_resource : new int[]{MediaRecorder.AudioSource.VOICE_COMMUNICATION, MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.MIC, MediaRecorder.AudioSource.DEFAULT}) {
+        for (int recordResource : new int[]{MediaRecorder.AudioSource.VOICE_COMMUNICATION, MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.MIC, MediaRecorder.AudioSource.DEFAULT}) {
             for (int sampleRate : new int[]{48000, 32000, 16000, 44100, 22050, 11025, 8000}) {
                 //
                 for (short channelConfig : new short[]{AudioFormat.CHANNEL_IN_MONO, AudioFormat.CHANNEL_IN_STEREO}) {
@@ -252,7 +271,7 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
                         if (nBufSize < 0) {
                             continue;
                         }
-                        AudioRecord dev = new AudioRecord(rec_resource, sampleRate, channelConfig, AudioFormat.ENCODING_PCM_16BIT, nBufSize);
+                        AudioRecord dev = new AudioRecord(recordResource, sampleRate, channelConfig, AudioFormat.ENCODING_PCM_16BIT, nBufSize);
                         if (dev.getState() == AudioRecord.STATE_INITIALIZED) {
                             bfound = true;
                         }
