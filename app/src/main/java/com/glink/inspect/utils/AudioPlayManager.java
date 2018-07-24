@@ -13,7 +13,7 @@ import com.glink.inspect.data.CallBackData;
 public class AudioPlayManager {
     private final String TAG = AudioPlayManager.class.getSimpleName();
     //最大计时时间
-    private int MAX_COUNT_DOWN_TIME = 60;
+    private int maxCountDownTime = 60;
     private static final int MIN_INTERVAL_TIME = 1000;// 1000ms
     private static AudioPlayManager audioManager;
     private MediaPlayer mPlayer;
@@ -36,12 +36,12 @@ public class AudioPlayManager {
                 case IS_ALMOST_REACH_MAX_TIME:
                     if (!isFinished) {
                         isFinished = true;
-//                        callWebStart(1, "录音播放结束", (MAX_COUNT_DOWN_TIME - countDownTime));
+//                        callWebStart(1, "录音播放结束", (maxCountDownTime - countDownTime));
                         stopPlay();
                     }
                     break;
                 case FLAG_LOOP:
-                    callWebStart(1, "录音播放中...", (MAX_COUNT_DOWN_TIME - countDownTime));
+                    callWebStart(1, "录音播放中...", (maxCountDownTime - countDownTime));
                     if (countDownTime == 0) {
                         mHandler.sendEmptyMessage(IS_ALMOST_REACH_MAX_TIME);
                         break;
@@ -78,7 +78,7 @@ public class AudioPlayManager {
         mActivity = activity;
         mWebView = webView;
         mStartCallbackName = callbackName;
-        MAX_COUNT_DOWN_TIME = maxTime;
+        maxCountDownTime = maxTime;
         countDownTime = maxTime;
         isFinished = false;
         if (null != mPlayer && mPlayer.isPlaying()) {

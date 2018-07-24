@@ -1,0 +1,40 @@
+apply plugin: 'com.android.library'
+version = "1.0"
+android {
+    compileSdkVersion rootProject.ext.androidCompileSdkVersion
+    buildToolsVersion rootProject.ext.androidBuildToolsVersion
+    resourcePrefix "AndroidMP3RecorderLibrary_"	//这个随便填
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+//      暂时屏蔽，等AndroidStudio NDK开发完善后再放开
+//        ndk {
+//            moduleName "mp3lame"
+//        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    compile fileTree(include: '*.jar', dir: 'libs')
+}
+
+
