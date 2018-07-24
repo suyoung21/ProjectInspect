@@ -160,6 +160,8 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
     public void stopRecorder(String stopCallbackName) {
         if (stopCallbackName != null) {
             mStopCallbackName = stopCallbackName;
+        } else {
+            stopRecording();
         }
         if (isCanceled) {
             cancelRecord();
@@ -205,7 +207,7 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
         return false;
     }
 
-    private void stopRecording() {
+    public void stopRecording() {
         try {
             if (recorder != null) {
                 recorder.stop();

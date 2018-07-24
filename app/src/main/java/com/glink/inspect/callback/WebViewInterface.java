@@ -66,7 +66,7 @@ public class WebViewInterface {
         //停止语音的播放
         AudioPlayManager.getInstance().stopPlay();
         if (recordUtil != null) {
-            recordUtil.stopRecorder(null);
+            recordUtil.stopRecording();
         }
     }
 
@@ -186,22 +186,26 @@ public class WebViewInterface {
         if (resultCode != -1) {
             return;
         }
-        List<String> pathList = new ArrayList<>();
+
         switch (requestCode) {
+
             case Const.REQUEST_CODE_PHOTO_CHOOSE:
                 if (data == null) {
                     return;
                 }
                 ArrayList<String> images = data.getStringArrayListExtra(ImageSelector.SELECT_RESULT);
-                pathList.addAll(images);
+                uploadImageFiles(images);
                 break;
             case Const.REQUEST_CODE_PHOTO_TAKE:
+                List<String> pathList = new ArrayList<>();
                 pathList.add(mCameraPhotoPath);
+                uploadImageFiles(pathList);
                 break;
             default:
                 break;
+
         }
-        uploadImageFiles(pathList);
+
 
     }
 
