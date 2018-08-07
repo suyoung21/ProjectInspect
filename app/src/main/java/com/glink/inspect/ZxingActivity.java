@@ -15,8 +15,10 @@ import android.widget.Toast;
 import com.glink.R;
 import com.glink.inspect.base.BaseActivity;
 import com.glink.inspect.bus.BusProvider;
+import com.glink.inspect.bus.FinishZxingEvent;
 import com.glink.inspect.data.ZxingData;
 import com.google.zxing.Result;
+import com.squareup.otto.Subscribe;
 
 import me.dm7.barcodescanner.core.ViewFinderView;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -110,6 +112,11 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
             }
         }, 2000);
 
+    }
+
+    @Subscribe
+    public void finishSelf(FinishZxingEvent event) {
+        finish();
     }
 
     private static class CustomViewFinderView extends ViewFinderView {

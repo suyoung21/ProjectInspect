@@ -14,6 +14,8 @@ import android.webkit.WebView;
 import com.donkingliang.imageselector.utils.ImageSelector;
 import com.glink.R;
 import com.glink.inspect.ZxingActivity;
+import com.glink.inspect.bus.BusProvider;
+import com.glink.inspect.bus.FinishZxingEvent;
 import com.glink.inspect.data.CallBackData;
 import com.glink.inspect.data.Const;
 import com.glink.inspect.utils.AudioPlayManager;
@@ -180,6 +182,11 @@ public class WebViewInterface {
                 }
             }
         });
+    }
+
+    @JavascriptInterface
+    public void quitScan() {
+        BusProvider.getInstance().post(new FinishZxingEvent());
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

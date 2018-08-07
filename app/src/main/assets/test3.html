@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-        <title>测试</title>
-    </head>
-    <body>
-        <div id="status0">
-            <a href="javascript:;" id="start">开始</a>
-        </div>
-        <div id="status1" style="display:none;">
-            <span id="time"></span>
-            <a href="javascript:;" id="stop">停止</a>
-        </div>
-        <div id="status2" style="display:none;">
-            <span id="play_time"></span>
-            <a href="javascript:;" id="play">播放</a>
-            <a href="javascript:;" id="stop_play">停止播放</a>
-            <a href="javascript:;" id="restart">重新录制</a>
-            <a href="javascript:;" id="upload">上传</a>
-        </div>
-        <div>
-            <a href="javascript:;" id="choose">选择图片</a>
-        </div>
-        <div>
-            <a href="javascript:;" id="take">拍照</a>
-        </div>
-        <div>
-            <a href="javascript:;" id="scan">扫码</a>
-        </div>
-        <div id="log"></div>
-        <script>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <title>测试</title>
+</head>
+<body>
+<div id="status0">
+    <a href="javascript:;" id="start">开始</a>
+</div>
+<div id="status1" style="display:none;">
+    <span id="time"></span>
+    <a href="javascript:;" id="stop">停止</a>
+</div>
+<div id="status2" style="display:none;">
+    <span id="play_time"></span>
+    <a href="javascript:;" id="play">播放</a>
+    <a href="javascript:;" id="stop_play">停止播放</a>
+    <a href="javascript:;" id="restart">重新录制</a>
+    <a href="javascript:;" id="upload">上传</a>
+</div>
+<div>
+    <a href="javascript:;" id="choose">选择图片</a>
+</div>
+<div>
+    <a href="javascript:;" id="take">拍照</a>
+</div>
+<div>
+    <a href="javascript:;" id="scan">扫码</a>
+</div>
+<div id="log"></div>
+<script>
             var gl = gl || {};
             var _log = function(res){
                 if(typeof res !== 'string'){
@@ -167,6 +167,7 @@
             $('scan').onclick = function(){
                 gl.scanCode('gl.scanCodeCallback');
             }
-        </script>
-    </body>
+
+</script>
+</body>
 </html>
