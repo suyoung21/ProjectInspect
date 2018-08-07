@@ -3,21 +3,19 @@ package com.glink.inspect.callback;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
-import android.support.v4.os.EnvironmentCompat;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.donkingliang.imageselector.utils.ImageSelector;
-import com.glink.R;
 import com.glink.inspect.ZxingActivity;
 import com.glink.inspect.bus.BusProvider;
 import com.glink.inspect.bus.FinishZxingEvent;
 import com.glink.inspect.data.CallBackData;
 import com.glink.inspect.data.Const;
+import com.glink.inspect.data.ZxingData;
 import com.glink.inspect.utils.AudioPlayManager;
 import com.glink.inspect.utils.CommonUtil;
 import com.glink.inspect.utils.FileUtil;
@@ -25,17 +23,15 @@ import com.glink.inspect.utils.GsonUtil;
 import com.glink.inspect.utils.LogUtil;
 import com.glink.inspect.utils.PermissionHelper;
 import com.glink.inspect.utils.RecordUtil;
-import com.glink.inspect.utils.ResUtil;
+import com.glink.inspect.utils.ToastUtils;
+import com.squareup.otto.Subscribe;
 
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * @author jiangshuyang
@@ -45,7 +41,8 @@ public class WebViewInterface {
     private Activity mActivity;
     private WebView mWebView;
     private CallBackData<JSONObject> mPhotoCallBackData;
-    private String mCallbackName;
+    private String mChoosePhotoCallbackName;
+    private String mTakePhotoCallbackName;
     private String mCameraPhotoPath;
     private RecordUtil recordUtil;
     private String currentRecordPath;
@@ -92,7 +89,7 @@ public class WebViewInterface {
     @JavascriptInterface
     public void startRecord(int second, String stopCallbackName, String startCallbackName) {
         maxRecordTime = second;
-        recordUtil.startRecorder(second, getRecorderPathDir(), mWebView, startCallbackName, stopCallbackName);
+        recordUtil.startRecorder(second, FileUtil.getRecorderPathDir(), mWebView, startCallbackName, stopCallbackName);
     }
 
     @JavascriptInterface
@@ -103,14 +100,13 @@ public class WebViewInterface {
 
     @JavascriptInterface
     public void uploadRecord(JSONObject params, String callbackName) {
-        mCallbackName = callbackName;
         CallBackData<JSONObject> mCallBackData = new CallBackData();
         mCallBackData.setCode(0);
         mCallBackData.setMessage("暂无上传接口");
         if (params != null) {
             mCallBackData.setData(params);
         }
-        String loadUrl = "javascript:" + mCallbackName + "('" + GsonUtil.toJsonString(mCallBackData) + "')";
+        String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(mCallBackData) + "')";
         LogUtil.d("call js: " + loadUrl);
         mWebView.loadUrl(loadUrl);
 
@@ -146,7 +142,7 @@ public class WebViewInterface {
 
     @JavascriptInterface
     public void choosePhoto(JSONObject params, String callbackName) {
-        this.mCallbackName = callbackName;
+        this.mChoosePhotoCallbackName = callbackName;
         mPhotoCallBackData = new CallBackData();
         mPhotoCallBackData.setData(params);
         // 打开相册
@@ -163,7 +159,7 @@ public class WebViewInterface {
             @Override
             public void onThroughAction(Boolean havePermission) {
                 if (havePermission) {
-                    mCallbackName = callbackName;
+                    mTakePhotoCallbackName = callbackName;
                     mPhotoCallBackData = new CallBackData();
                     mPhotoCallBackData.setData(params);
                     openCamera();
@@ -189,42 +185,64 @@ public class WebViewInterface {
         BusProvider.getInstance().post(new FinishZxingEvent());
     }
 
+
+    @Subscribe
+    public void getZxingResult(ZxingData zxingData) {
+        if (zxingData == null || TextUtils.isEmpty(zxingData.getCallbackName())) {
+            return;
+        }
+        CallBackData<String> callBackData = new CallBackData();
+        if (TextUtils.isEmpty(zxingData.getResult())) {
+            callBackData.setCode(0);
+            callBackData.setMessage("扫码失败");
+        } else {
+            callBackData.setCode(1);
+            callBackData.setMessage("扫码成功");
+            callBackData.setData(zxingData.getResult());
+        }
+
+        String loadUrl = "javascript:" + zxingData.getCallbackName() + "('" + GsonUtil.toJsonString(callBackData) + "','" + zxingData.getCodeType().toString() + "')";
+
+        LogUtil.d("call js: " + loadUrl);
+        mWebView.loadUrl(loadUrl);
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != -1) {
             return;
         }
-
         switch (requestCode) {
-
             case Const.REQUEST_CODE_PHOTO_CHOOSE:
                 if (data == null) {
                     return;
                 }
                 ArrayList<String> images = data.getStringArrayListExtra(ImageSelector.SELECT_RESULT);
-                uploadImageFiles(images);
+                uploadImageFiles(mChoosePhotoCallbackName, images);
                 break;
             case Const.REQUEST_CODE_PHOTO_TAKE:
                 List<String> pathList = new ArrayList<>();
                 pathList.add(mCameraPhotoPath);
-                uploadImageFiles(pathList);
+                uploadImageFiles(mTakePhotoCallbackName, pathList);
                 break;
             default:
                 break;
-
         }
-
 
     }
 
-    private void uploadImageFiles(List<String> imagePathList) {
+    private void uploadImageFiles(String callbackName, List<String> imagePathList) {
         if (CommonUtil.isListNull(imagePathList)) {
             return;
         }
-        //TODO:TEST--
+        if (TextUtils.isEmpty(callbackName)) {
+            ToastUtils.showMsg(mActivity, "web回调名称为空");
+            return;
+        }
+        //TODO:TEST
         {
             mPhotoCallBackData.setCode(0);
             mPhotoCallBackData.setMessage("暂无上传接口");
-            String loadUrl = "javascript:" + mCallbackName + "('" + GsonUtil.toJsonString(mPhotoCallBackData) + "')";
+            String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(mPhotoCallBackData) + "')";
             LogUtil.d("call js: " + loadUrl);
             mWebView.loadUrl(loadUrl);
         }
@@ -284,7 +302,7 @@ public class WebViewInterface {
         if (captureIntent.resolveActivity(mActivity.getPackageManager()) != null) {
             File photoFile = null;
             try {
-                photoFile = createImageFile();
+                photoFile = FileUtil.createImageFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -300,23 +318,5 @@ public class WebViewInterface {
         }
     }
 
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = String.format(ResUtil.getString(R.string.app_name) + "_%s.jpg", timeStamp);
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        if (!storageDir.exists()) {
-            storageDir.mkdir();
-        }
-        File tempFile = new File(storageDir, imageFileName);
-        if (!Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(tempFile))) {
-            return null;
-        }
-        return tempFile;
-    }
-
-    private String getRecorderPathDir() {
-        String storageDir = Const.APP_AUDIO_FILES_PATH;
-        return FileUtil.createDirectory(storageDir);
-    }
 
 }

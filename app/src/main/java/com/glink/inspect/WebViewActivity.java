@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -15,11 +14,6 @@ import android.widget.ProgressBar;
 import com.glink.R;
 import com.glink.inspect.base.BaseActivity;
 import com.glink.inspect.callback.WebViewInterface;
-import com.glink.inspect.data.CallBackData;
-import com.glink.inspect.data.ZxingData;
-import com.glink.inspect.utils.GsonUtil;
-import com.glink.inspect.utils.LogUtil;
-import com.squareup.otto.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,11 +40,6 @@ public class WebViewActivity extends BaseActivity {
         url = getIntent().getStringExtra("url");
         initView();
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     @Override
@@ -101,9 +90,7 @@ public class WebViewActivity extends BaseActivity {
         // 支持缩放，在SDK11以上，不显示缩放按钮
         webSettings.setSupportZoom(true);
         webSettings.setBuiltInZoomControls(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            webSettings.setDisplayZoomControls(false);
-        }
+        webSettings.setDisplayZoomControls(false);
         // 自适应网页宽度
         webSettings.setUseWideViewPort(true);
         webSettings.setLoadWithOverviewMode(true);
@@ -131,26 +118,5 @@ public class WebViewActivity extends BaseActivity {
             mWebView = null;
         }
         super.onDestroy();
-    }
-
-    @Subscribe
-    public void getZxingResult(ZxingData zxingData) {
-        if (zxingData == null || TextUtils.isEmpty(zxingData.getCallbackName())) {
-            return;
-        }
-        CallBackData<String> callBackData = new CallBackData();
-        if (TextUtils.isEmpty(zxingData.getResult())) {
-            callBackData.setCode(0);
-            callBackData.setMessage("扫码失败");
-        } else {
-            callBackData.setCode(1);
-            callBackData.setMessage("扫码成功");
-            callBackData.setData(zxingData.getResult());
-        }
-
-        String loadUrl = "javascript:" + zxingData.getCallbackName() + "('" + GsonUtil.toJsonString(callBackData) + "','" + zxingData.getCodeType().toString() + "')";
-
-        LogUtil.d("call js: " + loadUrl);
-        mWebView.loadUrl(loadUrl);
     }
 }

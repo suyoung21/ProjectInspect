@@ -1,13 +1,41 @@
 package com.glink.inspect.utils;
 
+import android.os.Environment;
+import android.support.v4.os.EnvironmentCompat;
 import android.util.Base64;
+
+import com.glink.R;
+import com.glink.inspect.data.Const;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class FileUtil {
+
+    public static File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = String.format(ResUtil.getString(R.string.app_name) + "_%s.jpg", timeStamp);
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        if (!storageDir.exists()) {
+            storageDir.mkdir();
+        }
+        File tempFile = new File(storageDir, imageFileName);
+        if (!Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(tempFile))) {
+            return null;
+        }
+        return tempFile;
+    }
+
+    public static String getRecorderPathDir() {
+        String storageDir = Const.APP_AUDIO_FILES_PATH;
+        return FileUtil.createDirectory(storageDir);
+    }
+
     public static File createFile(String filePath, boolean deleteIfExist) throws IOException {
 
         File file = new File(filePath);
