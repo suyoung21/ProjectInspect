@@ -3,6 +3,7 @@ package com.glink.inspect.http;
 import android.content.Context;
 
 import com.glink.inspect.base.BaseResponse;
+import com.glink.inspect.data.CallBackParamData;
 
 import java.io.File;
 import java.util.HashMap;
@@ -24,7 +25,27 @@ public class HttpRequest {
         HttpClient.getInstance(context).getServer().uploadPersonalImages(HttpHelper.getHeaders(null), "1701032922", map)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-             .subscribe(observer);
+                .subscribe(observer);
+    }
+
+    public static void uploadFile(Context context, String url, CallBackParamData paramData, int fileType, List<File> fileList, BaseObserver<BaseResponse> observer) {
+        Map<String, RequestBody> map = new HashMap<>(fileList.size() + 3);
+        map.put("type", HttpHelper.getTextRequestBody("" + fileType));
+        map.put("orderId", HttpHelper.getTextRequestBody(paramData.getOrderId()));
+        map.put("tunnelDevId", HttpHelper.getTextRequestBody(paramData.getTunnelDevId()));
+        for (int i = 0; i < fileList.size(); i++) {
+            File file = fileList.get(i);
+            if (i == 0) {
+                map.put("uploadFile" + "\"; filename=\"" + file.getName() + "", HttpHelper.getFileRequestBody(file));
+            } else {
+                map.put("file" + (i + 1) + "\"; filename=\"" + file.getName() + "", HttpHelper.getFileRequestBody(file));
+            }
+
+        }
+        HttpClient.getInstance(context).getServer().uploadFile(url, HttpHelper.getHeaders(null), map)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
     }
 
 }

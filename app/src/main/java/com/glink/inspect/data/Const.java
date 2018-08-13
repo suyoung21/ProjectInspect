@@ -33,4 +33,13 @@ public class Const {
      * onActivityResult  相机拍照
      */
     public static final int REQUEST_CODE_PHOTO_TAKE = 1002;
+
+    /**
+     * 文件上传类型：声音
+     */
+    public static final int UPLOAD_FILE_TYPE_RECORD=1;
+    /**
+     * 文件上传类型：图片
+     */
+    public static final int UPLOAD_FILE_TYPE_IMAGE=2;
 }

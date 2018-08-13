@@ -49,13 +49,10 @@ public class HttpHelper {
      * 获取必要的header
      */
     public static Map<String, String> getHeaders(String contentType) {
-        String authToken = "d753d646933b035bbb8e048c3fc83671";
         Map<String, String> map = new HashMap<>();
         map.put("DevNo", CommonUtil.getDeviceNum(App.getAppContext()));
         map.put("ClientIP", getIP());
         map.put("Accept-Language", getLan());
-        if (!TextUtils.isEmpty(authToken))
-            map.put("AuthToken", authToken);
         if (!TextUtils.isEmpty(contentType))
             map.put("Content-Type", contentType);
         return map;

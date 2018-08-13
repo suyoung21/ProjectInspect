@@ -37,9 +37,12 @@
         <div id="log"></div>
         <script>
             var gl = gl || {};
-
-            gl.setConfig(JSON.stringify({uploadUrl : 'http://xhmxny.imwork.net:13104/GLink-Cloud-Mgr/API/inspection/pad2/file/upload'}))
-
+            var config = {
+                uploadUrl : 'http://xhmxny.imwork.net:13104/GLink-Cloud-Mgr/API/inspection/pad2/file/upload'
+            }
+            if(gl.setConfig){
+                gl.setConfig(JSON.stringify(config));
+            }
             var _log = function(res){
                 if(typeof res !== 'string'){
                     res = JSON.stringify(res);
@@ -179,24 +182,24 @@
             }
             $('upload').onclick = function(){
                 var params = {
-                    a : 1,
-                    b : 2
+                    orderId : 1,
+                    tunnelDevId : 2
                 }
                 var str = JSON.stringify(params);
                 gl.uploadRecord(str,'gl.uploadRecordCallback');
             }
             $('choose').onclick = function(){
                 var params = {
-                    a : 1,
-                    b : 2
+               orderId : 1,
+                    tunnelDevId : 2
                 }
                 var str = JSON.stringify(params);
                 gl.choosePhoto(str,'gl.choosePhotoCallback')
             }
             $('take').onclick = function(){
                 var params = {
-                    a : 1,
-                    b : 2
+          orderId : 1,
+                    tunnelDevId : 2
                 }
                 var str = JSON.stringify(params);
                 gl.takePhoto(str,'gl.takePhotoCallback')

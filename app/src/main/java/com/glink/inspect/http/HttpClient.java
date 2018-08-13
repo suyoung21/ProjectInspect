@@ -45,7 +45,7 @@ public class HttpClient {
 
     private void resetApp() {
         mRetrofit = new Retrofit.Builder()
-                .baseUrl("http://10.206.2.193:85/")
+                .baseUrl("http://xhmxny.imwork.net:13104/")
                 .client(client)
                 .addConverterFactory(factory)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())

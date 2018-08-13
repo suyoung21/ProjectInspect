@@ -11,7 +11,11 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PartMap;
 import retrofit2.http.Path;
+import retrofit2.http.Url;
 
+/**
+ * @author jiangshuyang
+ */
 public interface HttpApi {
 
     @Multipart
@@ -22,4 +26,7 @@ public interface HttpApi {
     @POST("ImageService/gt/photo/upload/{aid}")
     Observable<BaseResponse> uploadPersonalImages(@HeaderMap Map<String, String> headers, @Path("aid") String aid, @PartMap Map<String, RequestBody> params);
 
+    @Multipart
+    @POST
+    Observable<BaseResponse> uploadFile(@Url String url, @HeaderMap Map<String, String> headers, @PartMap Map<String, RequestBody> params);
 }

@@ -39,7 +39,7 @@ public class MainActivity extends BaseActivity {
             public void onClick(View view) {
                 String url = editText.getText().toString().trim();
                 if (TextUtils.isEmpty(url)) {
-                    url = "file:///android_asset/test3.html";
+                    url = "file:///android_asset/test0813.html";
                 }
 
                 Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
