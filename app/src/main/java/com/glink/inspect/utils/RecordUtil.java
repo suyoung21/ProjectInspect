@@ -327,7 +327,7 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
             @Override
             public void run() {
                 LogUtil.d("record stop---code:" + code + "--time:" + time);
-                CallBackData<JSONObject> callBackData = new CallBackData();
+                CallBackData<String> callBackData = new CallBackData();
                 callBackData.setCode(code);
                 if (msg != null) {
                     callBackData.setMessage(msg);
@@ -336,14 +336,15 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
                     try {
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("time", time);
-                        callBackData.setData(jsonObject);
+                        callBackData.setData(jsonObject.toString());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 String loadUrl = "javascript:" + mStopCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
-                LogUtil.d("call js: " + loadUrl);
-                mWebView.loadUrl(loadUrl);
+                String newUrl=loadUrl.replace("\\","\\\\");
+                LogUtil.d("call js: " + newUrl);
+                mWebView.loadUrl(newUrl);
             }
         });
 

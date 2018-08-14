@@ -1,6 +1,7 @@
 package com.glink.inspect.http;
 
 import com.glink.inspect.base.BaseResponse;
+import com.glink.inspect.data.HttpRecordData;
 
 import java.util.Map;
 
@@ -28,5 +29,5 @@ public interface HttpApi {
 
     @Multipart
     @POST
-    Observable<BaseResponse> uploadFile(@Url String url, @HeaderMap Map<String, String> headers, @PartMap Map<String, RequestBody> params);
+    Observable<BaseResponse<HttpRecordData>> uploadFile(@Url String url, @HeaderMap Map<String, String> headers, @PartMap Map<String, RequestBody> params);
 }

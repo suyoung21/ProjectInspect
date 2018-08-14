@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -14,6 +15,13 @@ import android.widget.ProgressBar;
 import com.glink.R;
 import com.glink.inspect.base.BaseActivity;
 import com.glink.inspect.callback.WebViewInterface;
+import com.glink.inspect.data.CallBackData;
+import com.glink.inspect.data.ZxingData;
+import com.glink.inspect.utils.GsonUtil;
+import com.glink.inspect.utils.LogUtil;
+import com.squareup.otto.Subscribe;
+
+import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -94,6 +102,10 @@ public class WebViewActivity extends BaseActivity {
         // 自适应网页宽度
         webSettings.setUseWideViewPort(true);
         webSettings.setLoadWithOverviewMode(true);
+        // 设置4.2以后版本支持autoPlay，非用户手势促发
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            webSettings.setMediaPlaybackRequiresUserGesture(false);
+        }
         mWebView.addJavascriptInterface(callBack, interfaceClassName);
         if (null != webViewClient) {
             mWebView.setWebViewClient(webViewClient);
@@ -118,5 +130,26 @@ public class WebViewActivity extends BaseActivity {
             mWebView = null;
         }
         super.onDestroy();
+    }
+
+    @Subscribe
+    public void getZxingResult(ZxingData zxingData) {
+        if (zxingData == null || TextUtils.isEmpty(zxingData.getCallbackName())) {
+            return;
+        }
+        CallBackData<String> callBackData = new CallBackData();
+        if (TextUtils.isEmpty(zxingData.getResult())) {
+            callBackData.setCode(0);
+            callBackData.setMessage("扫码失败");
+        } else {
+            callBackData.setCode(1);
+            callBackData.setMessage("扫码成功");
+            callBackData.setData(zxingData.getResult());
+        }
+
+        String loadUrl = "javascript:" + zxingData.getCallbackName() + "('" + GsonUtil.toJsonString(callBackData) + "','" + zxingData.getCodeType().toString() + "')";
+
+        LogUtil.d("call js: " + loadUrl);
+        mWebView.loadUrl(loadUrl);
     }
 }

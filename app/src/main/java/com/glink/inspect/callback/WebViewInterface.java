@@ -32,6 +32,7 @@ import com.glink.inspect.utils.SpUtil;
 import com.glink.inspect.utils.ToastUtils;
 import com.squareup.otto.Subscribe;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -176,9 +177,9 @@ public class WebViewInterface {
             return;
         }
         this.mChoosePhotoCallbackName = callbackName;
-        mPhotoCallBackData = new CallBackData();
-        mPhotoCallBackData.setData(params);
         mChoosePhotoParamData = GsonUtil.jsonToObject(params, CallBackParamData.class);
+        mPhotoCallBackData = new CallBackData();
+
         // 打开相册
         ImageSelector.builder()
                 .useCamera(false)
@@ -199,7 +200,6 @@ public class WebViewInterface {
                 if (havePermission) {
                     mTakePhotoCallbackName = callbackName;
                     mPhotoCallBackData = new CallBackData();
-                    mPhotoCallBackData.setData(params);
                     openCamera();
                 }
             }
@@ -249,26 +249,7 @@ public class WebViewInterface {
     }
 
 
-    @Subscribe
-    public void getZxingResult(ZxingData zxingData) {
-        if (zxingData == null || TextUtils.isEmpty(zxingData.getCallbackName())) {
-            return;
-        }
-        CallBackData<String> callBackData = new CallBackData();
-        if (TextUtils.isEmpty(zxingData.getResult())) {
-            callBackData.setCode(0);
-            callBackData.setMessage("扫码失败");
-        } else {
-            callBackData.setCode(1);
-            callBackData.setMessage("扫码成功");
-            callBackData.setData(zxingData.getResult());
-        }
 
-        String loadUrl = "javascript:" + zxingData.getCallbackName() + "('" + GsonUtil.toJsonString(callBackData) + "','" + zxingData.getCodeType().toString() + "')";
-
-        LogUtil.d("call js: " + loadUrl);
-        mWebView.loadUrl(loadUrl);
-    }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != -1) {
@@ -293,7 +274,7 @@ public class WebViewInterface {
 
     }
 
-    private void uploadRecordFile(final String callbackName, String param, final List<String> filePathList) {
+    private void uploadRecordFile(final String callbackName, final String param, final List<String> filePathList) {
         if (CommonUtil.isListNull(filePathList)) {
             return;
         }
@@ -307,8 +288,8 @@ public class WebViewInterface {
             return;
         }
         final ArrayList<File> fileList = new ArrayList<>();
-        final CallBackData<JSONObject> callBackData = new CallBackData<>();
-        callBackData.setData(paramData.getJSOnObject());
+        final CallBackData<String> callBackData = new CallBackData<>();
+
         Observable.fromIterable(filePathList).map(new Function<String, File>() {
             @Override
             public File apply(String s) throws Exception {
@@ -340,6 +321,13 @@ public class WebViewInterface {
                             public void onNext(BaseResponse baseResponse) {
                                 super.onNext(baseResponse);
                                 LogUtil.d(baseResponse.code);
+//                                try {
+//                                    JSONObject jsonObject=new JSONObject();
+//                                    callBackData.setData(jsonObject);
+//                                }catch (JSONException e){
+//                                    e.printStackTrace();
+//                                }
+                                callBackData.setData(GsonUtil.toJsonString(baseResponse));
                             }
 
                             @Override
@@ -347,7 +335,8 @@ public class WebViewInterface {
                                 super.onComplete();
                                 callBackData.setCode(1);
                                 String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
-                                mWebView.loadUrl(loadUrl);
+                                String newUrl=loadUrl.replace("\\","\\\\");
+                                mWebView.loadUrl(newUrl);
                             }
                         });
                     }
@@ -400,6 +389,7 @@ public class WebViewInterface {
                             public void onNext(BaseResponse baseResponse) {
                                 super.onNext(baseResponse);
                                 LogUtil.d(baseResponse.code);
+                                mPhotoCallBackData.setData(GsonUtil.toJsonString(baseResponse));
                             }
 
                             @Override
@@ -407,7 +397,8 @@ public class WebViewInterface {
                                 super.onComplete();
                                 mPhotoCallBackData.setCode(1);
                                 String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(mPhotoCallBackData) + "')";
-                                mWebView.loadUrl(loadUrl);
+                                String newUrl=loadUrl.replace("\\","\\\\");
+                                mWebView.loadUrl(newUrl);
                             }
                         });
                     }

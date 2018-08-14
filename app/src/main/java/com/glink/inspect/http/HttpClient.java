@@ -13,6 +13,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -37,8 +38,12 @@ public class HttpClient {
     }
 
     private void init() {
+        //声明日志类
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+        //设定日志级别
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         client = new OkHttpClient.Builder()
-                .addInterceptor(new LoggingInterceptor())
+                .addInterceptor(httpLoggingInterceptor)
                 .build();
         resetApp();
     }
@@ -64,8 +69,8 @@ public class HttpClient {
 
             //请求发起的时间
             long t1 = System.nanoTime();
-            LogUtil.d(String.format("发送请求 %s on %s%n%s",
-                    request.url(), chain.connection(), request.headers()));
+            LogUtil.d(String.format("发送请求 %s on %s%n%s", request.url(), chain.connection(), request.headers()));
+            LogUtil.d("body: " + request.body());
 
             Response response = chain.proceed(request);
 
