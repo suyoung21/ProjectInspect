@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -106,6 +107,8 @@ public class WebViewActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             webSettings.setMediaPlaybackRequiresUserGesture(false);
         }
+        //开启硬件加速
+        mWebView.setLayerType(View.LAYER_TYPE_HARDWARE,null);
         mWebView.addJavascriptInterface(callBack, interfaceClassName);
         if (null != webViewClient) {
             mWebView.setWebViewClient(webViewClient);
