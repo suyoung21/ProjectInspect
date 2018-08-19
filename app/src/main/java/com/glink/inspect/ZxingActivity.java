@@ -3,6 +3,8 @@ package com.glink.inspect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -20,6 +22,7 @@ import com.glink.inspect.data.ZxingData;
 import com.google.zxing.Result;
 import com.squareup.otto.Subscribe;
 
+import me.dm7.barcodescanner.core.IViewFinder;
 import me.dm7.barcodescanner.core.ViewFinderView;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
@@ -49,13 +52,13 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
         if (state != null) {
             mFlash = state.getBoolean(FLASH_STATE, false);
         }
-//        mScannerView = new ZXingScannerView(this) {
-//            @Override
-//            protected IViewFinder createViewFinderView(Context context) {
-//                return new CustomViewFinderView(context);
-//            }
-//        };
-        mScannerView = new ZXingScannerView(this);
+        mScannerView = new ZXingScannerView(this) {
+            @Override
+            protected IViewFinder createViewFinderView(Context context) {
+                return new CustomViewFinderView(context);
+            }
+        };
+//        mScannerView = new ZXingScannerView(this);
         ViewGroup contentFrame = (ViewGroup) findViewById(R.id.content_frame);
         contentFrame.addView(mScannerView);
         findViewById(R.id.light).setOnClickListener(new View.OnClickListener() {
@@ -121,6 +124,13 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
 
     private static class CustomViewFinderView extends ViewFinderView {
 
+        private static final int[] SCANNER_ALPHA = new int[]{0, 64, 128, 192, 255, 192, 128, 64};
+        private int scannerAlpha;
+        private int y = 0;
+        private int min;
+        private int max;
+        private boolean isY = false;
+
         public CustomViewFinderView(Context context) {
             super(context);
             init();
@@ -132,10 +142,35 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
         }
 
         private void init() {
-//            setSquareViewFinder(true);
-//            setBorderColor(R.color.gl_blue);
-//            setBorderStrokeWidth(5);
+            setSquareViewFinder(true);
+            setBorderColor(R.color.gl_blue);
+            setBorderStrokeWidth(5);
             setLaserEnabled(true);
+        }
+
+        @Override
+        public void drawLaser(Canvas canvas) {
+            Rect framingRect = this.getFramingRect();
+//            this.mLaserPaint.setAlpha(SCANNER_ALPHA[this.scannerAlpha]);
+//            this.scannerAlpha = (this.scannerAlpha + 1) % SCANNER_ALPHA.length;
+
+            max = framingRect.top + framingRect.height()-10;
+            min = framingRect.top;
+            if (!isY) {
+                isY = true;
+                y = min;
+            }
+
+            if (y < max) {
+                y = y +10;
+            } else if (y >= max) {
+                y = min;
+            }
+//            int middle = framingRect.height() / 2 + framingRect.top - y;
+            canvas.drawRect((float) (framingRect.left + 2), (float) (y - 1), (float) (framingRect.right - 1), (float) (y + 5), this.mLaserPaint);
+
+
+            this.postInvalidateDelayed(80L, framingRect.left - 10, framingRect.top - 10, framingRect.right + 10, framingRect.bottom + 10);
         }
     }
 }
