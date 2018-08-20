@@ -35,7 +35,7 @@ public class BeepManager implements MediaPlayer.OnCompletionListener, MediaPlaye
 
 	private static final String TAG = BeepManager.class.getSimpleName();
 
-	private static final float BEEP_VOLUME = 0.10f;
+	private static final float BEEP_VOLUME = 0.50f;
 	private static final long VIBRATE_DURATION = 200L;
 
 	private final Activity activity;
@@ -57,7 +57,7 @@ public class BeepManager implements MediaPlayer.OnCompletionListener, MediaPlaye
 			// The volume on STREAM_SYSTEM is not adjustable, and users found it
 			// too loud,
 			// so we now play on the music stream.
-			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+			activity.setVolumeControlStream(AudioManager.STREAM_ALARM);
 			mediaPlayer = buildMediaPlayer(activity);
 		}
 	}
@@ -86,7 +86,7 @@ public class BeepManager implements MediaPlayer.OnCompletionListener, MediaPlaye
 
 	private MediaPlayer buildMediaPlayer(Context activity) {
 		MediaPlayer mediaPlayer = new MediaPlayer();
-		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+		mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
 		mediaPlayer.setOnCompletionListener(this);
 		mediaPlayer.setOnErrorListener(this);
 		try {

@@ -19,6 +19,7 @@ import com.glink.inspect.base.BaseActivity;
 import com.glink.inspect.bus.BusProvider;
 import com.glink.inspect.bus.FinishZxingEvent;
 import com.glink.inspect.data.ZxingData;
+import com.glink.inspect.utils.BeepManager;
 import com.google.zxing.Result;
 import com.squareup.otto.Subscribe;
 
@@ -32,6 +33,7 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
     private boolean mFlash;
     private ZXingScannerView mScannerView;
     private String callbackName;
+    private BeepManager beepManager;
 
 
     public static Intent newIntent(Activity fromActivity, String callbackName) {
@@ -67,6 +69,8 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
                 toggleFlash();
             }
         });
+
+        beepManager=new BeepManager(this);
     }
 
     @Override
@@ -94,6 +98,13 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
         mScannerView.stopCamera();
     }
 
+    @Override
+    protected void onDestroy() {
+        beepManager.close();
+        beepManager=null;
+        super.onDestroy();
+    }
+
     private void toggleFlash() {
         mFlash = !mFlash;
         mScannerView.setFlash(mFlash);
@@ -102,6 +113,7 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
     @Override
     public void handleResult(Result result) {
 //        Toast.makeText(getApplicationContext(), "内容=" + result.getText() + ",格式=" + result.getBarcodeFormat().toString(), Toast.LENGTH_SHORT).show();
+        beepManager.playBeepSoundAndVibrate();
         Toast.makeText(getApplicationContext(), "扫描成功", Toast.LENGTH_SHORT).show();
         BusProvider.getInstance().post(new ZxingData(result.getText(), result.getBarcodeFormat(), callbackName));
         // Note:
@@ -171,7 +183,7 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
             canvas.drawRect((float) (framingRect.left + 2), (float) (y - 1), (float) (framingRect.right - 1), (float) (y + 5), this.mLaserPaint);
 
 
-            this.postInvalidateDelayed(80L, framingRect.left - 10, framingRect.top - 10, framingRect.right + 10, framingRect.bottom + 10);
+            this.postInvalidateDelayed(100L, framingRect.left - 10, framingRect.top - 10, framingRect.right + 10, framingRect.bottom + 10);
         }
     }
 }
