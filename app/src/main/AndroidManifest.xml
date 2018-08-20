@@ -14,6 +14,8 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.FLASHLIGHT"/>
     <uses-feature android:name="android.hardware.camera.autofocus"/>
+    <!--震动-->
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:name="com.glink.inspect.App"

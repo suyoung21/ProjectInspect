@@ -101,7 +101,8 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
 
     @Override
     public void handleResult(Result result) {
-        Toast.makeText(getApplicationContext(), "内容=" + result.getText() + ",格式=" + result.getBarcodeFormat().toString(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "内容=" + result.getText() + ",格式=" + result.getBarcodeFormat().toString(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "扫描成功", Toast.LENGTH_SHORT).show();
         BusProvider.getInstance().post(new ZxingData(result.getText(), result.getBarcodeFormat(), callbackName));
         // Note:
         // * Wait 2 seconds to resume the preview.
