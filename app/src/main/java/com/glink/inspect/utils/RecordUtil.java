@@ -323,52 +323,46 @@ public class RecordUtil implements MediaRecorder.OnErrorListener {
     }
 
     private void callWebStop(final int code, final String msg, final int time) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                LogUtil.d("record stop---code:" + code + "--time:" + time);
-                CallBackData<String> callBackData = new CallBackData();
-                callBackData.setCode(code);
-                if (msg != null) {
-                    callBackData.setMessage(msg);
-                }
-                if (time >= 0) {
-                    try {
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("time", time);
-                        callBackData.setData(jsonObject.toString());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                String loadUrl = "javascript:" + mStopCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
-                String newUrl=loadUrl.replace("\\","\\\\");
-                LogUtil.d("call js: " + newUrl);
-                mWebView.loadUrl(newUrl);
+        LogUtil.d("record stop---code:" + code + "--time:" + time);
+        CallBackData<String> callBackData = new CallBackData();
+        callBackData.setCode(code);
+        if (msg != null) {
+            callBackData.setMessage(msg);
+        }
+        if (time >= 0) {
+            try {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("time", time);
+                callBackData.setData(jsonObject.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        });
+        }
+        String loadUrl = "javascript:" + mStopCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
+        String newUrl=loadUrl.replace("\\","\\\\");
+        webViewLoadUrl(newUrl);
 
     }
 
     private void callWebStart(final int code, final String msg, final int time) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                LogUtil.d("record start---code:" + code + "--time:" + time);
-                CallBackData callBackData = new CallBackData();
-                callBackData.setCode(code);
-                if (msg != null) {
-                    callBackData.setMessage(msg);
-                }
-                String loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "'," + time + ")";
-                if (time == 0) {
-                    loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
-                }
-                LogUtil.d("call js: " + loadUrl);
-                mWebView.loadUrl(loadUrl);
-            }
-        });
+        LogUtil.d("record start---code:" + code + "--time:" + time);
+        CallBackData callBackData = new CallBackData();
+        callBackData.setCode(code);
+        if (msg != null) {
+            callBackData.setMessage(msg);
+        }
+        String loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "'," + time + ")";
+        if (time == 0) {
+            loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
+        }
+        webViewLoadUrl(loadUrl);
+    }
 
+    private synchronized void webViewLoadUrl(String loadUrl) {
+        getActivity().runOnUiThread(() -> {
+            LogUtil.d("call js: " + loadUrl);
+            mWebView.loadUrl(loadUrl);
+        });
     }
 
 }

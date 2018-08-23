@@ -154,42 +154,36 @@ public class AudioPlayManager {
     }
 
     private void callWebStart(final int code, final String msg, final int time) {
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                LogUtil.d("play start---code:" + code + "--time:" + time);
-                CallBackData callBackData = new CallBackData();
-                callBackData.setCode(code);
-                if (msg != null) {
-                    callBackData.setMessage(msg);
-                }
-                String loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "'," + time + ")";
-                if (time == 0) {
-                    loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
-                }
-                LogUtil.d("call js: " + loadUrl);
-                mWebView.loadUrl(loadUrl);
-            }
-        });
 
+        LogUtil.d("play start---code:" + code + "--time:" + time);
+        CallBackData callBackData = new CallBackData();
+        callBackData.setCode(code);
+        if (msg != null) {
+            callBackData.setMessage(msg);
+        }
+        String loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "'," + time + ")";
+        if (time == 0) {
+            loadUrl = "javascript:" + mStartCallbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
+        }
+        webViewLoadUrl(loadUrl);
     }
 
     private void callWebStop(final int code, final String msg, final String mStopCallBack) {
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                LogUtil.d("play stop---code:" + code);
-                CallBackData callBackData = new CallBackData();
-                callBackData.setCode(code);
-                if (msg != null) {
-                    callBackData.setMessage(msg);
-                }
-                String loadUrl = "javascript:" + mStopCallBack + "('" + GsonUtil.toJsonString(callBackData) + "')";
+        LogUtil.d("play stop---code:" + code);
+        CallBackData callBackData = new CallBackData();
+        callBackData.setCode(code);
+        if (msg != null) {
+            callBackData.setMessage(msg);
+        }
+        String loadUrl = "javascript:" + mStopCallBack + "('" + GsonUtil.toJsonString(callBackData) + "')";
+        webViewLoadUrl(loadUrl);
+    }
 
-                LogUtil.d("call js: " + loadUrl);
-                mWebView.loadUrl(loadUrl);
-            }
+
+    private synchronized void webViewLoadUrl(String loadUrl) {
+        mActivity.runOnUiThread(() -> {
+            LogUtil.d("call js: " + loadUrl);
+            mWebView.loadUrl(loadUrl);
         });
-
     }
 }

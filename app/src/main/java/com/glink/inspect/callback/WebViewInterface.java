@@ -147,8 +147,7 @@ public class WebViewInterface {
             mCallBackData.setCode(0);
             mCallBackData.setMessage("没有录音文件");
             String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(mCallBackData) + "')";
-            LogUtil.d("call js: " + loadUrl);
-            mWebView.loadUrl(loadUrl);
+            webViewLoadUrl(loadUrl);
             return;
         }
         AudioPlayManager.getInstance().startAudio(mActivity, currentRecordPath, maxRecordTime, mWebView, callbackName);
@@ -164,8 +163,7 @@ public class WebViewInterface {
             mCallBackData.setCode(0);
             mCallBackData.setMessage("没有录音文件");
             String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(mCallBackData) + "')";
-            LogUtil.d("call js: " + loadUrl);
-            mWebView.loadUrl(loadUrl);
+            webViewLoadUrl(loadUrl);
             return;
         }
         AudioPlayManager.getInstance().stopPlay(mActivity, mWebView, callbackName);
@@ -336,7 +334,7 @@ public class WebViewInterface {
                                 callBackData.setCode(1);
                                 String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
                                 String newUrl=loadUrl.replace("\\","\\\\");
-                                mWebView.loadUrl(newUrl);
+                                webViewLoadUrl(newUrl);
                             }
                         });
                     }
@@ -398,7 +396,7 @@ public class WebViewInterface {
                                 mPhotoCallBackData.setCode(1);
                                 String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(mPhotoCallBackData) + "')";
                                 String newUrl=loadUrl.replace("\\","\\\\");
-                                mWebView.loadUrl(newUrl);
+                                webViewLoadUrl(newUrl);
                             }
                         });
                     }
@@ -430,5 +428,10 @@ public class WebViewInterface {
         }
     }
 
-
+    private synchronized void webViewLoadUrl(String loadUrl) {
+        mActivity.runOnUiThread(() -> {
+            LogUtil.d("call js: " + loadUrl);
+            mWebView.loadUrl(loadUrl);
+        });
+    }
 }

@@ -19,6 +19,7 @@ import com.glink.inspect.callback.WebViewInterface;
 import com.glink.inspect.data.CallBackData;
 import com.glink.inspect.data.ZxingData;
 import com.glink.inspect.utils.GsonUtil;
+import com.glink.inspect.utils.KeyBoardListener;
 import com.glink.inspect.utils.LogUtil;
 import com.squareup.otto.Subscribe;
 
@@ -48,7 +49,7 @@ public class WebViewActivity extends BaseActivity {
 
         url = getIntent().getStringExtra("url");
         initView();
-
+        KeyBoardListener.getInstance(this).init();
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.glink.inspect.bus.BusProvider;
 import com.glink.inspect.bus.FinishZxingEvent;
 import com.glink.inspect.data.ZxingData;
 import com.glink.inspect.utils.ResUtil;
+import com.glink.inspect.utils.ToastUtils;
 import com.google.zxing.Result;
 import com.squareup.otto.Subscribe;
 
@@ -90,7 +91,6 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
         // You can optionally set aspect ratio tolerance level
         // that is used in calculating the optimal Camera preview size
         //mScannerView.setAspectTolerance(0.2f);
-
         mScannerView.startCamera();
         mScannerView.setFlash(mFlash);
         mScannerView.setAutoFocus(true);
@@ -144,6 +144,7 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
         private int min;
         private int max;
         private boolean isY = false;
+        private Context context;
 
         Bitmap bitmap;
         //        Rect srcRect;
@@ -152,11 +153,13 @@ public class ZxingActivity extends BaseActivity implements ZXingScannerView.Resu
 
         public CustomViewFinderView(Context context) {
             super(context);
+            this.context=context;
             init();
         }
 
         public CustomViewFinderView(Context context, AttributeSet attrs) {
             super(context, attrs);
+            this.context=context;
             init();
         }
 

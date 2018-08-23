@@ -36,12 +36,14 @@
         <activity
             android:name="com.glink.inspect.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:windowSoftInputMode="adjustPan"
             android:theme="@style/FullAppTheme">
         </activity>
 
         <activity
             android:name="com.glink.inspect.ZxingActivity"
             android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:theme="@style/FullAppTheme">
         </activity>
 

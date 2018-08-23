@@ -37,14 +37,24 @@ public class MainActivity extends BaseActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String url = editText.getText().toString().trim();
-                if (TextUtils.isEmpty(url)) {
-                    url = "file:///android_asset/test0813.html";
-                }
 
-                Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
-                intent.putExtra("url", url);
-                startActivity(intent);
+
+                PermissionHelper.checkPermission(MainActivity.this, PermissionHelper.PermissionType.WRITE_EXTERNAL_STORAGE, new PermissionHelper.OnPermissionThroughActionListener() {
+                    @Override
+                    public void onThroughAction(Boolean havePermission) {
+                        if (havePermission) {
+                            String url = editText.getText().toString().trim();
+                            if (TextUtils.isEmpty(url)) {
+                                url = "file:///android_asset/test0813.html";
+                            }
+                            Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
+                            intent.putExtra("url", url);
+                            startActivity(intent);
+                        }
+                    }
+                });
+
+
             }
         });
 
@@ -68,9 +78,16 @@ public class MainActivity extends BaseActivity {
         jumpTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
-                intent.putExtra("url", staticUrl);
-                startActivity(intent);
+                PermissionHelper.checkPermission(MainActivity.this, PermissionHelper.PermissionType.WRITE_EXTERNAL_STORAGE, new PermissionHelper.OnPermissionThroughActionListener() {
+                    @Override
+                    public void onThroughAction(Boolean havePermission) {
+                        if (havePermission) {
+                            Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
+                            intent.putExtra("url", staticUrl);
+                            startActivity(intent);
+                        }
+                    }
+                });
             }
         });
     }
