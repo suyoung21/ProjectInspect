@@ -18,12 +18,11 @@ import com.glink.inspect.base.BaseActivity;
 import com.glink.inspect.callback.WebViewInterface;
 import com.glink.inspect.data.CallBackData;
 import com.glink.inspect.data.ZxingData;
+import com.glink.inspect.utils.CommonUtil;
 import com.glink.inspect.utils.GsonUtil;
 import com.glink.inspect.utils.KeyBoardListener;
 import com.glink.inspect.utils.LogUtil;
 import com.squareup.otto.Subscribe;
-
-import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,7 +45,6 @@ public class WebViewActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
         ButterKnife.bind(this);
-
         url = getIntent().getStringExtra("url");
         initView();
         KeyBoardListener.getInstance(this).init();
@@ -109,7 +107,7 @@ public class WebViewActivity extends BaseActivity {
             webSettings.setMediaPlaybackRequiresUserGesture(false);
         }
         //开启硬件加速
-        mWebView.setLayerType(View.LAYER_TYPE_HARDWARE,null);
+        mWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         mWebView.addJavascriptInterface(callBack, interfaceClassName);
         if (null != webViewClient) {
             mWebView.setWebViewClient(webViewClient);
