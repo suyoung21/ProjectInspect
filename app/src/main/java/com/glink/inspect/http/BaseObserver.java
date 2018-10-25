@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 
 import com.glink.inspect.utils.DialogUtil;
-import com.glink.inspect.utils.ToastUtils;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -36,13 +35,11 @@ public class BaseObserver<T> implements Observer<T> {
     @Override
     public void onError(Throwable e) {
         hideProgress();
-        ToastUtils.showMsg(mContext, "http error");
     }
 
     @Override
     public void onComplete() {
         hideProgress();
-
     }
 
 //    public abstract void onSuccess(T t);

@@ -18,7 +18,6 @@ import com.glink.inspect.data.CallBackData;
 import com.glink.inspect.data.CallBackParamData;
 import com.glink.inspect.data.ConfigData;
 import com.glink.inspect.data.Const;
-import com.glink.inspect.data.ZxingData;
 import com.glink.inspect.http.BaseObserver;
 import com.glink.inspect.http.HttpRequest;
 import com.glink.inspect.utils.AudioPlayManager;
@@ -30,10 +29,6 @@ import com.glink.inspect.utils.PermissionHelper;
 import com.glink.inspect.utils.RecordUtil;
 import com.glink.inspect.utils.SpUtil;
 import com.glink.inspect.utils.ToastUtils;
-import com.squareup.otto.Subscribe;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +41,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.HttpException;
 
 /**
  * @author jiangshuyang
@@ -247,8 +243,6 @@ public class WebViewInterface {
     }
 
 
-
-
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != -1) {
             return;
@@ -333,8 +327,26 @@ public class WebViewInterface {
                                 super.onComplete();
                                 callBackData.setCode(1);
                                 String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
-                                String newUrl=loadUrl.replace("\\","\\\\");
+                                String newUrl = loadUrl.replace("\\", "\\\\");
                                 webViewLoadUrl(newUrl);
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                super.onError(e);
+                                CallBackData callBackData = new CallBackData();
+                                if (e instanceof HttpException) {
+                                    //HTTP错误
+                                    HttpException httpException = (HttpException) e;
+                                    callBackData.setCode(httpException.code());
+                                } else {
+                                    callBackData.setCode(0);
+                                }
+                                callBackData.setMessage(e.getMessage());
+                                String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
+                                String newUrl = loadUrl.replace("\\", "\\\\");
+                                webViewLoadUrl(newUrl);
+                                ToastUtils.showMsg(mActivity, "http error: " + e.getMessage());
                             }
                         });
                     }
@@ -395,8 +407,26 @@ public class WebViewInterface {
                                 super.onComplete();
                                 mPhotoCallBackData.setCode(1);
                                 String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(mPhotoCallBackData) + "')";
-                                String newUrl=loadUrl.replace("\\","\\\\");
+                                String newUrl = loadUrl.replace("\\", "\\\\");
                                 webViewLoadUrl(newUrl);
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                super.onError(e);
+                                CallBackData callBackData = new CallBackData();
+                                if (e instanceof HttpException) {
+                                    //HTTP错误
+                                    HttpException httpException = (HttpException) e;
+                                    callBackData.setCode(httpException.code());
+                                } else {
+                                    callBackData.setCode(0);
+                                }
+                                callBackData.setMessage(e.getMessage());
+                                String loadUrl = "javascript:" + callbackName + "('" + GsonUtil.toJsonString(callBackData) + "')";
+                                String newUrl = loadUrl.replace("\\", "\\\\");
+                                webViewLoadUrl(newUrl);
+                                ToastUtils.showMsg(mActivity, "http error: " + e.getMessage());
                             }
                         });
                     }

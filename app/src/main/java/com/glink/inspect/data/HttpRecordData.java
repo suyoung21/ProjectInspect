@@ -29,5 +29,6 @@ public class HttpRecordData {
 
         private int id;
         private String url;
+        private String previewURL;
     }
 }
