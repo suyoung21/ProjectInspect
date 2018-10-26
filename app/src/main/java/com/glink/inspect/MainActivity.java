@@ -12,6 +12,8 @@ import com.glink.R;
 import com.glink.inspect.base.BaseActivity;
 import com.glink.inspect.utils.PermissionHelper;
 
+import org.json.JSONArray;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -45,7 +47,7 @@ public class MainActivity extends BaseActivity {
                         if (havePermission) {
                             String url = editText.getText().toString().trim();
                             if (TextUtils.isEmpty(url)) {
-                                url = "file:///android_asset/test0813.html";
+                                url = "file:///android_asset/test1025-1.html";
                             }
                             Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
                             intent.putExtra("url", url);
@@ -61,14 +63,14 @@ public class MainActivity extends BaseActivity {
         zxingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PermissionHelper.checkPermission(MainActivity.this, PermissionHelper.PermissionType.CAMERA, new PermissionHelper.OnPermissionThroughActionListener() {
-                    @Override
-                    public void onThroughAction(Boolean havePermission) {
-                        if (havePermission) {
-                            startActivity(new Intent(MainActivity.this, ZxingActivity.class));
-                        }
-                    }
-                });
+//                PermissionHelper.checkPermission(MainActivity.this, PermissionHelper.PermissionType.CAMERA, new PermissionHelper.OnPermissionThroughActionListener() {
+//                    @Override
+//                    public void onThroughAction(Boolean havePermission) {
+//                        if (havePermission) {
+//                            startActivity(new Intent(MainActivity.this, ZxingActivity.class));
+//                        }
+//                    }
+//                });
 
             }
         });
