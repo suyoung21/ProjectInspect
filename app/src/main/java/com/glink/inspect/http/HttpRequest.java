@@ -3,7 +3,7 @@ package com.glink.inspect.http;
 import android.content.Context;
 
 import com.glink.inspect.base.BaseResponse;
-import com.glink.inspect.data.CallBackParamData;
+import com.glink.inspect.data.CommonData;
 
 import java.io.File;
 import java.util.HashMap;
@@ -14,6 +14,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.RequestBody;
 
+/**
+ * @author jiangshuyang
+ */
 public class HttpRequest {
 
     public static void uploadPics(Context context, List<File> fileList, BaseObserver<BaseResponse> observer) {
@@ -28,11 +31,16 @@ public class HttpRequest {
                 .subscribe(observer);
     }
 
-    public static void uploadFile(Context context, String url, CallBackParamData paramData, int fileType, List<File> fileList, BaseObserver<BaseResponse> observer) {
-        Map<String, RequestBody> map = new HashMap<>(fileList.size() + 3);
+    public static void uploadFile(Context context, String url, List<CommonData> commonDataList, int fileType, List<File> fileList, BaseObserver<BaseResponse> observer) {
+        Map<String, RequestBody> map = new HashMap<>(fileList.size()  + commonDataList.size());
         map.put("type", HttpHelper.getTextRequestBody("" + fileType));
-        map.put("orderId", HttpHelper.getTextRequestBody(paramData.getOrderId()));
-        map.put("tunnelDevId", HttpHelper.getTextRequestBody(paramData.getTunnelDevId()));
+        for (CommonData commonData : commonDataList) {
+            if (!("uploadUrl").equals(commonData.getKey())&&!("type").equals(commonData.getKey())) {
+                map.put(commonData.getKey(), HttpHelper.getTextRequestBody(commonData.getValue()));
+            }
+        }
+//        map.put("orderId", HttpHelper.getTextRequestBody(paramData.getOrderId()));
+//        map.put("tunnelDevId", HttpHelper.getTextRequestBody(paramData.getTunnelDevId()));
         for (int i = 0; i < fileList.size(); i++) {
             File file = fileList.get(i);
             if (i == 0) {

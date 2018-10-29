@@ -17,7 +17,6 @@ import com.glink.inspect.bus.FinishZxingEvent;
 import com.glink.inspect.data.CallBackData;
 import com.glink.inspect.data.CallBackParamData;
 import com.glink.inspect.data.CommonData;
-import com.glink.inspect.data.ConfigData;
 import com.glink.inspect.data.Const;
 import com.glink.inspect.http.BaseObserver;
 import com.glink.inspect.http.HttpRequest;
@@ -58,14 +57,14 @@ public class WebViewInterface {
     private CallBackData<String> mPhotoCallBackData;
     private String mChoosePhotoCallbackName;
     private String mTakePhotoCallbackName;
-    private CallBackParamData mChoosePhotoParamData;
-    private CallBackParamData mTakePhotoParamData;
+    private List<CommonData> mChoosePhotoDataList;
+    private List<CommonData> mTakePhotoDataList;
     private String mCameraPhotoPath;
     private RecordUtil recordUtil;
     private String currentRecordPath;
     private int maxRecordTime = 60;
     private SpUtil spUtil;
-    private ConfigData configData;
+    private String uploadUrl;
 
     public WebViewInterface(Activity activity, WebView webView) {
 
@@ -176,7 +175,8 @@ public class WebViewInterface {
             return;
         }
         this.mChoosePhotoCallbackName = callbackName;
-        mChoosePhotoParamData = GsonUtil.jsonToObject(params, CallBackParamData.class);
+//        mChoosePhotoParamData = GsonUtil.jsonToObject(params, CallBackParamData.class);
+        mChoosePhotoDataList = parseJsonToCommonData(params);
         mPhotoCallBackData = new CallBackData();
 
         // 打开相册
@@ -192,7 +192,8 @@ public class WebViewInterface {
         if (TextUtils.isEmpty(callbackName)) {
             return;
         }
-        mTakePhotoParamData = GsonUtil.jsonToObject(params, CallBackParamData.class);
+//        mTakePhotoParamData = GsonUtil.jsonToObject(params, CallBackParamData.class);
+        mTakePhotoDataList = parseJsonToCommonData(params);
         PermissionHelper.checkPermission(mActivity, PermissionHelper.PermissionType.CAMERA, new PermissionHelper.OnPermissionThroughActionListener() {
             @Override
             public void onThroughAction(Boolean havePermission) {
@@ -225,21 +226,21 @@ public class WebViewInterface {
         BusProvider.getInstance().post(new FinishZxingEvent());
     }
 
-    @JavascriptInterface
-    public void setConfig(String configJson) {
-        configData = GsonUtil.jsonToObject(configJson, ConfigData.class);
-        if (configData != null) {
-            if (!TextUtils.isEmpty(configData.getUploadUrl())) {
-                spUtil.setUploadUrl(configData.getUploadUrl());
-                LogUtil.d("get upload url: " + configData.getUploadUrl());
-            }
-        }
-    }
+//    @JavascriptInterface
+//    public void setConfig(String configJson) {
+//        configData = GsonUtil.jsonToObject(configJson, ConfigData.class);
+//        if (configData != null) {
+//            if (!TextUtils.isEmpty(configData.getUploadUrl())) {
+//                spUtil.setUploadUrl(configData.getUploadUrl());
+//                LogUtil.d("get upload url: " + configData.getUploadUrl());
+//            }
+//        }
+//    }
 
     private String getUploadUrl() {
         String url = "";
-        if (configData != null && !TextUtils.isEmpty(configData.getUploadUrl())) {
-            url = configData.getUploadUrl();
+        if (!TextUtils.isEmpty(uploadUrl)) {
+            url = uploadUrl;
         }
         if (TextUtils.isEmpty(url)) {
             url = spUtil.getUploadUrl();
@@ -258,12 +259,12 @@ public class WebViewInterface {
                     return;
                 }
                 ArrayList<String> images = data.getStringArrayListExtra(ImageSelector.SELECT_RESULT);
-                uploadImageFiles(mChoosePhotoCallbackName, mChoosePhotoParamData, images);
+                uploadImageFiles(mChoosePhotoCallbackName, mChoosePhotoDataList, images);
                 break;
             case Const.REQUEST_CODE_PHOTO_TAKE:
                 List<String> pathList = new ArrayList<>();
                 pathList.add(mCameraPhotoPath);
-                uploadImageFiles(mTakePhotoCallbackName, mTakePhotoParamData, pathList);
+                uploadImageFiles(mTakePhotoCallbackName, mTakePhotoDataList, pathList);
                 break;
             default:
                 break;
@@ -279,11 +280,10 @@ public class WebViewInterface {
             ToastUtils.showMsg(mActivity, "web callback name is null");
             return;
         }
-        final CallBackParamData paramData = GsonUtil.jsonToObject(param, CallBackParamData.class);
-        if (paramData == null || TextUtils.isEmpty(paramData.getOrderId()) || TextUtils.isEmpty(paramData.getTunnelDevId())) {
-            ToastUtils.showMsg(mActivity, "web json param has null");
-            return;
-        }
+//        final CallBackParamData paramData = GsonUtil.jsonToObject(param, CallBackParamData.class);
+
+        final List<CommonData> commonDataList = parseJsonToCommonData(param);
+
         final ArrayList<File> fileList = new ArrayList<>();
         final CallBackData<String> callBackData = new CallBackData<>();
 
@@ -313,17 +313,11 @@ public class WebViewInterface {
 
                     @Override
                     public void onComplete() {
-                        HttpRequest.uploadFile(mActivity, getUploadUrl(), paramData, Const.UPLOAD_FILE_TYPE_RECORD, fileList, new BaseObserver<BaseResponse>(mActivity) {
+                        HttpRequest.uploadFile(mActivity, getUploadUrl(), commonDataList, Const.UPLOAD_FILE_TYPE_RECORD, fileList, new BaseObserver<BaseResponse>(mActivity) {
                             @Override
                             public void onNext(BaseResponse baseResponse) {
                                 super.onNext(baseResponse);
                                 LogUtil.d(baseResponse.code);
-//                                try {
-//                                    JSONObject jsonObject=new JSONObject();
-//                                    callBackData.setData(jsonObject);
-//                                }catch (JSONException e){
-//                                    e.printStackTrace();
-//                                }
                                 callBackData.setData(GsonUtil.toJsonString(baseResponse));
                             }
 
@@ -359,7 +353,7 @@ public class WebViewInterface {
 
     }
 
-    private void uploadImageFiles(final String callbackName, final CallBackParamData paramData, final List<String> imagePathList) {
+    private void uploadImageFiles(final String callbackName, final List<CommonData> commonDataList, final List<String> imagePathList) {
         if (CommonUtil.isListNull(imagePathList)) {
             return;
         }
@@ -367,10 +361,7 @@ public class WebViewInterface {
             ToastUtils.showMsg(mActivity, "web callback name is null");
             return;
         }
-        if (paramData == null || TextUtils.isEmpty(paramData.getOrderId()) || TextUtils.isEmpty(paramData.getTunnelDevId())) {
-            ToastUtils.showMsg(mActivity, "web json param has null");
-            return;
-        }
+
         final ArrayList<File> fileList = new ArrayList<>();
 
         Observable.fromIterable(imagePathList).map(new Function<String, File>() {
@@ -399,7 +390,7 @@ public class WebViewInterface {
 
                     @Override
                     public void onComplete() {
-                        HttpRequest.uploadFile(mActivity, getUploadUrl(), paramData, Const.UPLOAD_FILE_TYPE_IMAGE, fileList, new BaseObserver<BaseResponse>(mActivity) {
+                        HttpRequest.uploadFile(mActivity, getUploadUrl(), commonDataList, Const.UPLOAD_FILE_TYPE_IMAGE, fileList, new BaseObserver<BaseResponse>(mActivity) {
                             @Override
                             public void onNext(BaseResponse baseResponse) {
                                 super.onNext(baseResponse);
@@ -470,7 +461,7 @@ public class WebViewInterface {
         });
     }
 
-    private List<CommonData> praseJsonToCommonData(String params) {
+    private List<CommonData> parseJsonToCommonData(String params) {
         List<CommonData> dataList = new ArrayList<CommonData>();
         if (!TextUtils.isEmpty(params)) {
             try {
@@ -489,7 +480,31 @@ public class WebViewInterface {
                 e.printStackTrace();
             }
         }
-
+        //更新上传地址
+        for (CommonData commonData : dataList) {
+            if (("uploadUrl").equals(commonData.getKey())) {
+                uploadUrl = commonData.getValue();
+                spUtil.setUploadUrl(uploadUrl);
+                LogUtil.d("get upload url: " + uploadUrl);
+            }
+        }
         return dataList;
     }
+
+//    private CallBackParamData getCallBackParamData(List<CommonData> list) {
+//        CallBackParamData data = new CallBackParamData();
+//        for (CommonData commonData : list) {
+//            if (("orderId").equals(commonData.getKey())) {
+//                data.setOrderId(commonData.getValue());
+//            } else if (("tunnelDevId").equals(commonData.getKey())) {
+//                data.setTunnelDevId(commonData.getValue());
+//            } else if (("uploadUrl").equals(commonData.getKey())) {
+//                data.setUploadUrl(commonData.getValue());
+//                uploadUrl = commonData.getValue();
+//                spUtil.setUploadUrl(uploadUrl);
+//                LogUtil.d("get upload url: " + uploadUrl);
+//            }
+//        }
+//        return data;
+//    }
 }
