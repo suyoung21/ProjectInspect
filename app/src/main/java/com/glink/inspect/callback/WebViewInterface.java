@@ -226,6 +226,14 @@ public class WebViewInterface {
         BusProvider.getInstance().post(new FinishZxingEvent());
     }
 
+    /**
+     * 跳转设置页面
+     */
+    @JavascriptInterface
+    public void goToSettingPage() {
+
+    }
+
 //    @JavascriptInterface
 //    public void setConfig(String configJson) {
 //        configData = GsonUtil.jsonToObject(configJson, ConfigData.class);
