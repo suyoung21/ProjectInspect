@@ -1,6 +1,7 @@
 package com.glink.inspect;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,23 +15,28 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
 import com.glink.R;
-import com.glink.inspect.base.BaseActivity;
+import com.glink.inspect.base.BaseResponse;
 import com.glink.inspect.callback.WebViewInterface;
 import com.glink.inspect.data.CallBackData;
 import com.glink.inspect.data.ZxingData;
+import com.glink.inspect.http.BaseObserver;
+import com.glink.inspect.http.HttpRequest;
 import com.glink.inspect.utils.CommonUtil;
+import com.glink.inspect.utils.DialogUtil;
 import com.glink.inspect.utils.GsonUtil;
 import com.glink.inspect.utils.KeyBoardListener;
 import com.glink.inspect.utils.LogUtil;
+import com.glink.inspect.utils.ToastUtils;
 import com.squareup.otto.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.HttpException;
 
 /**
  * @author jiangshuyang
  */
-public class WebViewActivity extends BaseActivity {
+public class WebViewActivity extends UrlBaseActivity {
 
     @BindView(R.id.webView)
     WebView mWebView;
@@ -38,22 +44,95 @@ public class WebViewActivity extends BaseActivity {
     ProgressBar mProgressBar;
 
     private WebViewInterface webViewInterface;
-    private String url;
+    private boolean isRestart = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
         ButterKnife.bind(this);
-        url = getIntent().getStringExtra("url");
+//        url = getIntent().getStringExtra("url");
         initView();
         KeyBoardListener.getInstance(this).init();
+//        PermissionHelper.checkPermission(WebViewActivity.this, PermissionHelper.PermissionType.WRITE_EXTERNAL_STORAGE, new PermissionHelper.OnPermissionThroughActionListener() {
+//            @Override
+//            public void onThroughAction(Boolean havePermission) {
+//                if (havePermission) {
+//                }
+//            }
+//        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshUrl();
+        if (TextUtils.isEmpty(getRequestIP())) {
+            if (isRestart) {
+                DialogUtil.getInstance().simpleDialogShow(this, "页面地址还未设置，是否跳转设置", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i) {
+                            case -1:
+                                startActivity(SettingActivity.newIntent(WebViewActivity.this));
+                                break;
+                            case -2:
+                                WebViewActivity.this.finish();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+            } else {
+                startActivity(SettingActivity.newIntent(WebViewActivity.this));
+            }
+        } else {
+            if (isRestart) {
+                url = CommonUtil.parseUploadUrl(getRequestIP(), getRequestPort());
+                mWebView.loadUrl(url);
+            } else {
+                HttpRequest.verifyUrl(this, getRequestIP(), getRequestPort(), new BaseObserver<BaseResponse>(this) {
+                    @Override
+                    public void onNext(BaseResponse baseResponse) {
+                        super.onNext(baseResponse);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        super.onComplete();
+                        url = CommonUtil.parseUploadUrl(getRequestIP(), getRequestPort());
+                        mWebView.loadUrl(url);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        super.onError(e);
+                        if (e instanceof HttpException) {
+                            //HTTP错误
+                            HttpException httpException = (HttpException) e;
+                            ToastUtils.showMsg(getContext(), "Http Error:" + httpException.code());
+                        }
+                        startActivity(SettingActivity.newIntent(WebViewActivity.this));
+                    }
+                });
+            }
+
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        isRestart = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        webViewInterface.onPause();
+        if (webViewInterface != null) {
+            webViewInterface.onPause();
+        }
     }
 
     @Override
@@ -64,6 +143,7 @@ public class WebViewActivity extends BaseActivity {
         }
         super.onBackPressed();
     }
+
 
     private void initView() {
         mWebView.setWebChromeClient(new ChromeClient(mProgressBar, null));
@@ -112,7 +192,9 @@ public class WebViewActivity extends BaseActivity {
         if (null != webViewClient) {
             mWebView.setWebViewClient(webViewClient);
         }
-        mWebView.loadUrl(url);
+        if (!TextUtils.isEmpty(url)) {
+            mWebView.loadUrl(url);
+        }
     }
 
     @Override

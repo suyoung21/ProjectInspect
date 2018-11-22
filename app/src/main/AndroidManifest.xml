@@ -27,17 +27,18 @@
         android:screenOrientation="portrait"
         android:theme="@style/AppTheme">
         <activity android:name="com.glink.inspect.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
         <activity
             android:name="com.glink.inspect.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/FullAppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
 
         <activity
@@ -68,6 +69,7 @@
         <activity
             android:name="com.donkingliang.imageselector.ClipImageActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name=".inspect.SettingActivity"/>
 
         <!-- Android 7.0 文件共享配置，必须配置 -->
         <provider

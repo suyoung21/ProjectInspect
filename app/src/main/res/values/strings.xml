@@ -3,5 +3,11 @@
 
     <string name="setting">设置</string>
     <string name="cancel">取消</string>
+
+    <string name="title_ip">域名或IP</string>
+    <string name="title_port">端口号</string>
+    <string name="http_pre">http://</string>
+
+    <string name="btn_confirm">确认</string>
 </resources>
 

@@ -19,8 +19,8 @@
                 <corners android:radius="1dip" />
 
                 <gradient
-                    android:endColor="@color/progress_color"
-                    android:startColor="@color/progress_color" />
+                    android:endColor="@color/primary_dark"
+                    android:startColor="@color/primary_dark" />
             </shape>
         </clip>
     </item>

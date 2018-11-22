@@ -10,6 +10,8 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.donkingliang.imageselector.utils.ImageSelector;
+import com.glink.inspect.SettingActivity;
+import com.glink.inspect.WebViewActivity;
 import com.glink.inspect.ZxingActivity;
 import com.glink.inspect.base.BaseResponse;
 import com.glink.inspect.bus.BusProvider;
@@ -231,7 +233,7 @@ public class WebViewInterface {
      */
     @JavascriptInterface
     public void goToSettingPage() {
-
+        mActivity.startActivity(SettingActivity.newIntent(mActivity));
     }
 
 //    @JavascriptInterface

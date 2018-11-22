@@ -1,6 +1,7 @@
 package com.glink.inspect.http;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.glink.inspect.base.BaseResponse;
 import com.glink.inspect.data.CommonData;
@@ -32,10 +33,10 @@ public class HttpRequest {
     }
 
     public static void uploadFile(Context context, String url, List<CommonData> commonDataList, int fileType, List<File> fileList, BaseObserver<BaseResponse> observer) {
-        Map<String, RequestBody> map = new HashMap<>(fileList.size()  + commonDataList.size());
+        Map<String, RequestBody> map = new HashMap<>(fileList.size() + commonDataList.size());
         map.put("type", HttpHelper.getTextRequestBody("" + fileType));
         for (CommonData commonData : commonDataList) {
-            if (!("uploadUrl").equals(commonData.getKey())&&!("type").equals(commonData.getKey())) {
+            if (!("uploadUrl").equals(commonData.getKey()) && !("type").equals(commonData.getKey())) {
                 map.put(commonData.getKey(), HttpHelper.getTextRequestBody(commonData.getValue()));
             }
         }
@@ -51,6 +52,19 @@ public class HttpRequest {
 
         }
         HttpClient.getInstance(context).getServer().uploadFile(url, HttpHelper.getHeaders(null), map)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+    }
+
+    public static void verifyUrl(Context context, String ip, String port, BaseObserver<BaseResponse> observer) {
+        String fullUrl;
+        if(TextUtils.isEmpty(port)){
+            fullUrl   = ip + "/GLink-Cloud-Mgr/API/session/currentUser";
+        }else{
+            fullUrl   = ip + ":" + port + "/GLink-Cloud-Mgr/API/session/currentUser";
+        }
+        HttpClient.getInstance(context).getServer().verifyUrl(fullUrl, HttpHelper.getHeaders(null))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(observer);

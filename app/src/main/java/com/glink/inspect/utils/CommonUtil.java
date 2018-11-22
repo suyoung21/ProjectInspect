@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.glink.inspect.App;
+import com.glink.inspect.data.Const;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -16,6 +17,8 @@ import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommonUtil {
 
@@ -129,5 +132,37 @@ public class CommonUtil {
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
             decorView.setSystemUiVisibility(uiOptions);
         }
+    }
+
+    public static String parseUploadUrl(String ip, String port) {
+        String fullUrl;
+        if (TextUtils.isEmpty(port.trim())) {
+            fullUrl = ip + Const.HTTP_WEBVIEW_ADDRESS;
+        } else {
+            fullUrl = ip + ":" + port +  Const.HTTP_WEBVIEW_ADDRESS;
+        }
+        if (isValidHttp(fullUrl)) {
+            return fullUrl;
+        }
+        return null;
+    }
+
+    public static String getPingUrl(String ip, String port) {
+        String fullUrl;
+        if (TextUtils.isEmpty(port.trim())) {
+            fullUrl = ip + Const.HTTP_WEBVIEW_PING;
+        } else {
+            fullUrl = ip + ":" + port + Const.HTTP_WEBVIEW_PING;
+        }
+        if (isValidHttp(fullUrl)) {
+            return fullUrl;
+        }
+        return null;
+    }
+
+    public static boolean isValidHttp(String url) {
+        Pattern pattern = Pattern.compile("(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?");
+        Matcher validMatcher = pattern.matcher(url);
+        return validMatcher.matches();
     }
 }

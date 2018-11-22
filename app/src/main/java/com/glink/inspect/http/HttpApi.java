@@ -30,4 +30,7 @@ public interface HttpApi {
     @Multipart
     @POST
     Observable<BaseResponse<HttpRecordData>> uploadFile(@Url String url, @HeaderMap Map<String, String> headers, @PartMap Map<String, RequestBody> params);
+
+    @POST
+    Observable<BaseResponse> verifyUrl(@Url String url, @HeaderMap Map<String, String> headers);
 }

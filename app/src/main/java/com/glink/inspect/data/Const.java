@@ -42,4 +42,16 @@ public class Const {
      * 文件上传类型：图片
      */
     public static final int UPLOAD_FILE_TYPE_IMAGE=2;
+
+    /**
+     * webviewl链接地址
+     */
+    public static final String HTTP_WEBVIEW_ADDRESS="/index.html";
+
+    /**
+     * 服务能否访问的地址
+     */
+    public static final String HTTP_WEBVIEW_PING="/GLink-Cloud-Mgr/API/session/currentUser";
+
+
 }

@@ -1,7 +1,11 @@
 package com.glink.inspect.utils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -22,6 +26,7 @@ public class DialogUtil {
     public static DialogUtil getInstance() {
         return sCustomDialog;
     }
+
     /**
      * 全局loading弹框
      */
@@ -46,4 +51,24 @@ public class DialogUtil {
         }
         return dialog;
     }
+
+    public  void simpleDialogShow(Context context, String message, DialogInterface.OnClickListener listener) {
+        String buttonPName = "确定";
+        String buttonNName = "取消";
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT < 21) {
+            builder = new AlertDialog.Builder(context);
+        } else {
+            builder = new AlertDialog.Builder(context, android.R.style.Theme_Material_Light_Dialog_Alert);
+        }
+
+        builder.setMessage(message);
+        if (listener != null) {
+            builder.setPositiveButton(buttonPName, listener);
+            builder.setNegativeButton(buttonNName,listener);
+        }
+
+        builder.show();
+    }
+
 }
