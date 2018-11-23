@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.glink.inspect.base.BaseResponse;
 import com.glink.inspect.data.CommonData;
+import com.glink.inspect.utils.CommonUtil;
 
 import java.io.File;
 import java.util.HashMap;
@@ -58,12 +59,7 @@ public class HttpRequest {
     }
 
     public static void verifyUrl(Context context, String ip, String port, BaseObserver<BaseResponse> observer) {
-        String fullUrl;
-        if(TextUtils.isEmpty(port)){
-            fullUrl   = ip + "/GLink-Cloud-Mgr/API/session/currentUser";
-        }else{
-            fullUrl   = ip + ":" + port + "/GLink-Cloud-Mgr/API/session/currentUser";
-        }
+        String fullUrl= CommonUtil.getPingUrl(ip,port);
         HttpClient.getInstance(context).getServer().verifyUrl(fullUrl, HttpHelper.getHeaders(null))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

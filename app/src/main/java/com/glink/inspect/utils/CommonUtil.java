@@ -40,13 +40,13 @@ public class CommonUtil {
             netInterfaces = NetworkInterface.getNetworkInterfaces();
             while (netInterfaces.hasMoreElements()) {
                 NetworkInterface ni = netInterfaces.nextElement();
-                if (ni.isLoopback() || ni.isVirtual() || !ni.isUp() || ni.getName().equals("ppp0"))
-                    continue;
+                if (ni.isLoopback() || ni.isVirtual() || !ni.isUp() || ni.getName().equals("ppp0")){
+                    continue;}
                 Enumeration<InetAddress> ips = ni.getInetAddresses();
                 while (ips.hasMoreElements()) {
                     InetAddress ia = ips.nextElement();
-                    if (ia instanceof Inet6Address)
-                        continue;
+                    if (ia instanceof Inet6Address){
+                        continue;}
                     return ia.getHostAddress();
                 }
             }
@@ -139,7 +139,10 @@ public class CommonUtil {
         if (TextUtils.isEmpty(port.trim())) {
             fullUrl = ip + Const.HTTP_WEBVIEW_ADDRESS;
         } else {
-            fullUrl = ip + ":" + port +  Const.HTTP_WEBVIEW_ADDRESS;
+            fullUrl = ip + ":" + port + Const.HTTP_WEBVIEW_ADDRESS;
+        }
+        if (!fullUrl.startsWith(Const.HTTP_PRE) && !fullUrl.startsWith(Const.HTTPS_PRE)) {
+            fullUrl = Const.HTTP_PRE + fullUrl;
         }
         if (isValidHttp(fullUrl)) {
             return fullUrl;
@@ -153,6 +156,9 @@ public class CommonUtil {
             fullUrl = ip + Const.HTTP_WEBVIEW_PING;
         } else {
             fullUrl = ip + ":" + port + Const.HTTP_WEBVIEW_PING;
+        }
+        if (!fullUrl.startsWith(Const.HTTP_PRE) && !fullUrl.startsWith(Const.HTTPS_PRE)) {
+            fullUrl = Const.HTTP_PRE + fullUrl;
         }
         if (isValidHttp(fullUrl)) {
             return fullUrl;

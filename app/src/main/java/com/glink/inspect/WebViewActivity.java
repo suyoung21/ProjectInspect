@@ -18,6 +18,7 @@ import com.glink.R;
 import com.glink.inspect.base.BaseResponse;
 import com.glink.inspect.callback.WebViewInterface;
 import com.glink.inspect.data.CallBackData;
+import com.glink.inspect.data.Const;
 import com.glink.inspect.data.ZxingData;
 import com.glink.inspect.http.BaseObserver;
 import com.glink.inspect.http.HttpRequest;
@@ -44,87 +45,53 @@ public class WebViewActivity extends UrlBaseActivity {
     ProgressBar mProgressBar;
 
     private WebViewInterface webViewInterface;
-    private boolean isRestart = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
         ButterKnife.bind(this);
-//        url = getIntent().getStringExtra("url");
         initView();
         KeyBoardListener.getInstance(this).init();
-//        PermissionHelper.checkPermission(WebViewActivity.this, PermissionHelper.PermissionType.WRITE_EXTERNAL_STORAGE, new PermissionHelper.OnPermissionThroughActionListener() {
-//            @Override
-//            public void onThroughAction(Boolean havePermission) {
-//                if (havePermission) {
-//                }
-//            }
-//        });
+        if (refreshUrl()) {
+            startActivityForResult(SettingActivity.Companion.newIntent(WebViewActivity.this), Const.REQUEST_CODE_SETTING);
+        } else {
+            HttpRequest.verifyUrl(this, getRequestIP(), getRequestPort(), new BaseObserver<BaseResponse>(this) {
+                @Override
+                public void onNext(BaseResponse baseResponse) {
+                    super.onNext(baseResponse);
+                }
+
+                @Override
+                public void onComplete() {
+                    super.onComplete();
+                    url = CommonUtil.parseUploadUrl(getRequestIP(), getRequestPort());
+                    mWebView.loadUrl(url);
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    super.onError(e);
+                    if (e instanceof HttpException) {
+                        //HTTP错误
+                        HttpException httpException = (HttpException) e;
+                        ToastUtils.showMsg(getContext(), getString(R.string.http_error_pre) + httpException.code());
+                    } else {
+                        ToastUtils.showMsg(getContext(), getString(R.string.http_error_exception));
+                    }
+                }
+            });
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        refreshUrl();
-        if (TextUtils.isEmpty(getRequestIP())) {
-            if (isRestart) {
-                DialogUtil.getInstance().simpleDialogShow(this, "页面地址还未设置，是否跳转设置", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        switch (i) {
-                            case -1:
-                                startActivity(SettingActivity.newIntent(WebViewActivity.this));
-                                break;
-                            case -2:
-                                WebViewActivity.this.finish();
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-            } else {
-                startActivity(SettingActivity.newIntent(WebViewActivity.this));
-            }
-        } else {
-            if (isRestart) {
-                url = CommonUtil.parseUploadUrl(getRequestIP(), getRequestPort());
-                mWebView.loadUrl(url);
-            } else {
-                HttpRequest.verifyUrl(this, getRequestIP(), getRequestPort(), new BaseObserver<BaseResponse>(this) {
-                    @Override
-                    public void onNext(BaseResponse baseResponse) {
-                        super.onNext(baseResponse);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        super.onComplete();
-                        url = CommonUtil.parseUploadUrl(getRequestIP(), getRequestPort());
-                        mWebView.loadUrl(url);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        super.onError(e);
-                        if (e instanceof HttpException) {
-                            //HTTP错误
-                            HttpException httpException = (HttpException) e;
-                            ToastUtils.showMsg(getContext(), "Http Error:" + httpException.code());
-                        }
-                        startActivity(SettingActivity.newIntent(WebViewActivity.this));
-                    }
-                });
-            }
-
-        }
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        isRestart = true;
     }
 
     @Override
@@ -201,6 +168,40 @@ public class WebViewActivity extends UrlBaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         webViewInterface.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case Const.REQUEST_CODE_SETTING:
+                if (resultCode == RESULT_OK) {
+                    refreshUrl();
+                    url = CommonUtil.parseUploadUrl(getRequestIP(), getRequestPort());
+                    mWebView.loadUrl(url);
+                } else if (resultCode == RESULT_CANCELED) {
+                    DialogUtil.getInstance().simpleDialogShow(this, getString(R.string.setting_dlg_msg), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            switch (i) {
+                                case -1:
+                                    startActivityForResult(SettingActivity.Companion.newIntent(WebViewActivity.this), Const.REQUEST_CODE_SETTING);
+                                    break;
+                                case -2:
+                                    WebViewActivity.this.finish();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    });
+                }
+                break;
+            case Const.REQUEST_CODE_SETTING_REFRESH:
+                if (resultCode == RESULT_OK) {
+                    refreshUrl();
+                    url = CommonUtil.parseUploadUrl(getRequestIP(), getRequestPort());
+                    mWebView.loadUrl(url);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -224,10 +225,10 @@ public class WebViewActivity extends UrlBaseActivity {
         CallBackData<String> callBackData = new CallBackData();
         if (TextUtils.isEmpty(zxingData.getResult())) {
             callBackData.setCode(0);
-            callBackData.setMessage("扫码失败");
+            callBackData.setMessage(getString(R.string.scan_code_fail));
         } else {
             callBackData.setCode(1);
-            callBackData.setMessage("扫码成功");
+            callBackData.setMessage(getString(R.string.scan_code_success));
             callBackData.setData(zxingData.getResult());
         }
 

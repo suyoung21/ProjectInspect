@@ -233,7 +233,7 @@ public class WebViewInterface {
      */
     @JavascriptInterface
     public void goToSettingPage() {
-        mActivity.startActivity(SettingActivity.newIntent(mActivity));
+        mActivity.startActivityForResult(SettingActivity.Companion.newIntent(mActivity),Const.REQUEST_CODE_SETTING_REFRESH);
     }
 
 //    @JavascriptInterface

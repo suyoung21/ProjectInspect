@@ -35,6 +35,16 @@ public class Const {
     public static final int REQUEST_CODE_PHOTO_TAKE = 1002;
 
     /**
+     * onActivityResult  设置页
+     */
+    public static final int REQUEST_CODE_SETTING = 2001;
+
+    /**
+     * onActivityResult  设置页，web地址已有
+     */
+    public static final int REQUEST_CODE_SETTING_REFRESH = 2002;
+
+    /**
      * 文件上传类型：声音
      */
     public static final int UPLOAD_FILE_TYPE_RECORD=1;
@@ -43,6 +53,9 @@ public class Const {
      */
     public static final int UPLOAD_FILE_TYPE_IMAGE=2;
 
+    public static final String HTTP_PRE="http://";
+
+    public static final String HTTPS_PRE="https://";
     /**
      * webviewl链接地址
      */

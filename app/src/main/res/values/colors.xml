@@ -4,19 +4,19 @@
     <!--<color name="colorPrimaryDark">#303F9F</color>-->
     <!--<color name="colorAccent">#FF4081</color>-->
 
-    <color name="colorPrimary">#8BC34A</color>
-    <color name="colorPrimaryDark">#689F38</color>
-    <color name="colorAccent">#4CAF50</color>
+    <color name="colorPrimary">#2FABE7</color>
+    <color name="colorPrimaryDark">#2FABE7</color>
+    <color name="colorAccent">#2FABE7</color>
 
 
-    <color name="primary">#8BC34A</color>
-    <color name="primary_dark">#689F38</color>
-    <color name="primary_light">#DCEDC8</color>
-    <color name="accent">#4CAF50</color>
-    <color name="primary_text">#212121</color>
-    <color name="secondary_text">#757575</color>
-    <color name="icons">#212121</color>
-    <color name="divider">#BDBDBD</color>
+    <!--<color name="primary">#8BC34A</color>-->
+    <!--<color name="primary_dark">#689F38</color>-->
+    <!--<color name="primary_light">#DCEDC8</color>-->
+    <!--<color name="accent">#4CAF50</color>-->
+    <!--<color name="primary_text">#212121</color>-->
+    <!--<color name="secondary_text">#757575</color>-->
+    <!--<color name="icons">#212121</color>-->
+    <!--<color name="divider">#BDBDBD</color>-->
 
     <color name="black_overlay">#66000000</color>
 

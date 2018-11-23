@@ -21,7 +21,7 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 /**
- * Created by jiangshuyang on 17/11/23/023.
+ * @author jiangshuyang
  */
 
 public class HttpHelper {
@@ -77,34 +77,6 @@ public class HttpHelper {
             }
             return baseResponse.getData();
         }
-    }
-
-
-    /**
-     * 游戏圈请求，数组参数转换，加逗号
-     */
-    public static String arrayToString(Object[] arr) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < arr.length; i++) {
-            stringBuilder.append(arr[i]);
-            if (arr.length - 1 != i)
-                stringBuilder.append(",");
-        }
-        return stringBuilder.toString();
-    }
-
-    /**
-     * 游戏圈请求，数组参数转换，加逗号
-     */
-    public static String arrayToString(List list) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < list.size(); i++) {
-            stringBuilder.append(list.get(i));
-            if (list.size() - 1 != i)
-                stringBuilder.append(",");
-        }
-//        return stringBuilder.toString().substring(0, stringBuilder.toString().length() - 1);
-        return stringBuilder.toString();
     }
 
     /**

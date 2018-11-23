@@ -4,10 +4,18 @@
     <string name="setting">设置</string>
     <string name="cancel">取消</string>
 
-    <string name="title_ip">域名或IP</string>
+    <string name="title_ip">服务器</string>
     <string name="title_port">端口号</string>
-    <string name="http_pre">http://</string>
 
     <string name="btn_confirm">确认</string>
+
+    <string name="http_error_pre">Http Error:</string>
+    <string name="http_error_exception">配置错误或网络连接异常</string>
+    <string name="http_error_format">请填写正确格式的服务器地址或端口号</string>
+    <string name="http_error_null">服务器地址不能为空</string>
+
+    <string name="setting_dlg_msg">服务器地址还未设置，是否跳转设置</string>
+    <string name="scan_code_success">扫码成功</string>
+    <string name="scan_code_fail">扫码失败</string>
 </resources>
 

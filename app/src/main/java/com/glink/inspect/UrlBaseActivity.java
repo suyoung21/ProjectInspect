@@ -11,17 +11,23 @@ public class UrlBaseActivity extends BaseActivity {
 
     protected SpUtil spUtil;
 
-    protected void refreshUrl() {
+    /**
+     * 获取本地域名及端口
+     * @return ip==null
+     */
+    protected boolean refreshUrl() {
         String requestIP = ConfigData.getInstance().getRequestIP();
-
-        if (TextUtils.isEmpty(requestIP)) {
+        boolean isNull = TextUtils.isEmpty(requestIP);
+        if (isNull) {
             if (spUtil == null) {
                 spUtil = new SpUtil(this);
             }
-            ConfigData.getInstance().setRequestIP(spUtil.getIP());
+            String ip=spUtil.getIP();
+            ConfigData.getInstance().setRequestIP(ip);
             ConfigData.getInstance().setRequestPort(spUtil.getPort());
+            return TextUtils.isEmpty(ip);
         }
-
+        return false;
     }
 
     protected void setDataCache(String ip, String port) {
