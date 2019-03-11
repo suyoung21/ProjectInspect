@@ -11,6 +11,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
